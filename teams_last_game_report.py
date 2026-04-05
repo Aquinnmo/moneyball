@@ -44,8 +44,10 @@ def last_game_report() -> None:
         try:
             #html metadata
             f.write(f'<!doctype html>\n<html><head><meta charset="utf-8"><title>{team.upper()} Previous Game Report</title></head><body>\n')
-            f.write('<h1>Game Info</h1>\n')
+            
+            f.write(f'<h1>{team.upper()}\'s last game {f'vs {away_team}' if home_team.upper() == team.upper() else f'@ {home_team}'}</h1>')
 
+            f.write('<h1>Game Info</h1>\n')
             f.write(f"<p>Game Date: {game_info.iloc[0]['game_date']}</p>\n")
             f.write(f"<p><strong>Matchup:</strong> {away_team} @ {home_team}</p>\n")
             f.write(
@@ -54,13 +56,15 @@ def last_game_report() -> None:
             if not game_info.iloc[0]['inning'] == 9:
                 f.write(f"<p><strong>Extra innings:</strong> {game_info.iloc[0]['inning']}</p>\n")
 
-            f.write('<h2>Batter Info</h2>\n')
+            f.write('<h1>Batter Info</h1>\n')
 
             batters = game_info['batter'].unique().tolist()
-            f.write(f"<p>Total Unique Batters: {len(batters)}</p>\n")
+            f.write(f"<h2>Total Unique Batters: {len(batters)}</h2>\n")
 
             names:pd.DataFrame = playerid_reverse_lookup(batters, key_type='mlbam')
-            batters:tuple[int, str, str] = list(zip(names['key_mlbam'], names['name_first'], names['name_last']))
+            batters:list[tuple[int, str, str]] = list(zip(names['key_mlbam'], names['name_first'], names['name_last']))
+
+            batters.sort(key=lambda d: d[2].lower())
 
             batter_info = []
 
@@ -86,14 +90,14 @@ def last_game_report() -> None:
                 }
                 batter_info.append(b_data)
                 f.write('<section>\n')
-                f.write(f"<h3>{b_data['last_name']}, {b_data['first_name']}</h3>\n")
+                f.write(f"<h3>{b_data['first_name']} {b_data['last_name']}</h3>\n")
                 f.write(f"<p>Team: {home_team if b_data['home_team'] else away_team}</p>\n")
-                f.write(f"<p>Estimated times reaching base: {b_data['total_estimated_woba']}</p>\n")
-                f.write(f"<p>Estimated total bases: {b_data['total_estimated_slg']}</p>\n")
-                f.write(f"<p>Total wOPS: {b_data['total_wops']}</p>\n")
-                f.write(f"<p>wOBA: {b_data['woba']}</p>\n")
-                f.write(f"<p>xSLG: {b_data['xslg']}</p>\n")
-                f.write(f"<p>wOPS: {b_data['wops']}</p>\n")
+                f.write(f"<ul><li>wOBA: {b_data['woba']}</li>\n")
+                f.write(f"<li>xSLG: {b_data['xslg']}</li>\n")
+                f.write(f"<li>wOliS: {b_data['wops']}</li>\n")
+                f.write(f"<li>Estimated times reaching base: {b_data['total_estimated_woba']}</li>\n")
+                f.write(f"<li>Estimated total bases: {b_data['total_estimated_slg']}</li>\n")
+                f.write(f"<li>Total wOPS: {b_data['total_wops']}</li></ul>\n")
                 f.write('</section>\n')
 
             home_info = []
@@ -106,21 +110,21 @@ def last_game_report() -> None:
 
             def write_team_info(team_info:list, home_away:bool) -> None:
                 team_name = home_team if home_away else away_team
-                f.write(f"<h3>{team_name} Team Info</h3>\n")
-                f.write(f"<p>Estimated times reaching base: {sum(batter['total_estimated_woba'] for batter in team_info)}</p>\n")
-                f.write(f"<p>Estimated bases: {sum(batter['total_estimated_slg'] for batter in team_info)}</p>\n")
-                f.write(f"<p>Team wOBA: {round(sum(batter['woba'] for batter in team_info) / len(team_info), 3)}</p>\n")
-                f.write(f"<p>Team xSLG: {round(sum(batter['xslg'] for batter in team_info) / len(team_info), 3)}</p>\n")
-                f.write(f"<p>Team wOPS: {round(sum(batter['wops'] for batter in team_info) / len(team_info), 3)}</p>\n")
-                f.write('<br/>\n')
+                f.write(f"<h1>{team_name} Team Info</h1>\n")
+                f.write(f"<ul><li>Team wOBA: {round(sum(batter['woba'] for batter in team_info) / len(team_info), 3)}</li>\n")
+                f.write(f"<li>Team xSLG: {round(sum(batter['xslg'] for batter in team_info) / len(team_info), 3)}</li>\n")
+                f.write(f"<li>Team wOPS: {round(sum(batter['wops'] for batter in team_info) / len(team_info), 3)}</li>\n")
+                f.write(f"<li>Estimated times reaching base: {sum(batter['total_estimated_woba'] for batter in team_info)}</li>\n")
+                f.write(f"<li>Estimated bases: {sum(batter['total_estimated_slg'] for batter in team_info)}</li></ul>\n")
 
             write_team_info(home_info, True)
             write_team_info(away_info, False)
 
-            f.write('<h2>Game Analysis</h2>\n')
+            f.write('<h1>Game Analysis</h1>\n')
             winometer = sum(batter['total_estimated_slg'] for batter in home_info) / (sum(batter['total_estimated_slg'] for batter in home_info) + sum(batter['total_estimated_slg'] for batter in away_info))
             f.write(f"<p>{home_team} Deserve-to-Win-O-Meter: {round(winometer, 4) * 100}%</p>\n")
             f.write(f"<p>{away_team} Deserve-to-Win-O-Meter: {round(1 - winometer, 4) * 100}%</p>\n")
+            f.write(f'<h3>{home_team if winometer >= 0.5 else away_team} deserved to win this game</h3>\n')
 
             def write_current_plot_as_figure(title:str) -> None:
                 buffer = BytesIO()
@@ -135,8 +139,8 @@ def last_game_report() -> None:
                 f.write('</figure>\n')
                 plt.close()
 
-            f.write('<h2>Graphs</h2>\n')
-            f.write('<h3>Averages</h3>\n')
+            f.write('<h1>Graphs</h1>\n')
+            f.write('<h2>Averages</h2>\n')
 
             #Averages Graphs
 
@@ -191,7 +195,7 @@ def last_game_report() -> None:
             write_current_plot_as_figure('Average wOPS')
 
             #Graphs for Totals
-            f.write('<h3>Totals</h3>\n')
+            f.write('<h2>Totals</h2>\n')
 
             #wOBA graph
             sorted_batters = sorted(batter_info, key=lambda b: b['total_estimated_woba'])
