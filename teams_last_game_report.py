@@ -132,7 +132,6 @@ def last_game_report() -> None:
                 f.write(
                     f'<img src="data:image/png;base64,{image_b64}" alt="{title}" style="max-width: 100%; height: auto;"/>\n'
                 )
-                f.write(f'<figcaption>{title}</figcaption>\n')
                 f.write('</figure>\n')
                 plt.close()
 
