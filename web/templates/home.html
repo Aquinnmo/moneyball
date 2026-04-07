@@ -6,8 +6,11 @@
 {% block content %}
   <h1>Welcome to Moneyball</h1>
   
-  <h2>Here are todays games: </h2>
+  <h2>Here are yesterday's games: </h2>
 
-  
-
+  <ul>
+    {% for game in games %}
+    <li><a href= {{ "game/" ~ game['game_id'] }}>{{ game['away_name'] }} @ {{ game['home_name']}}</a>: {{game['home_score']}} - {{ game['away_score'] }} {{ game['status'] }}</li>
+    {% endfor %}
+  </ul>
 {% endblock %}
