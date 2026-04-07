@@ -94,7 +94,7 @@ def last_game_report() -> None:
                 f.write(f"<p>Team: {home_team if b_data['home_team'] else away_team}</p>\n")
                 f.write(f"<ul><li>wOBA: {b_data['woba']}</li>\n")
                 f.write(f"<li>xSLG: {b_data['xslg']}</li>\n")
-                f.write(f"<li>wOliS: {b_data['wops']}</li>\n")
+                f.write(f"<li>wOPS: {b_data['wops']}</li>\n")
                 f.write(f"<li>Estimated times reaching base: {b_data['total_estimated_woba']}</li>\n")
                 f.write(f"<li>Estimated total bases: {b_data['total_estimated_slg']}</li>\n")
                 f.write(f"<li>Total wOPS: {b_data['total_wops']}</li></ul>\n")

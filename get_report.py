@@ -1,3 +1,3 @@
-from teams_last_game_report import last_game_report
+from analysis_tools.teams_last_game_report import last_game_report
 
 last_game_report()
