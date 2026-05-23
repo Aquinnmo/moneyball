@@ -1,5 +1,6 @@
 export * from './TeamTable';
 export * from './WinOMeter';
+export * from './WinOMeterExplainer';
 export * from './PlayerBarGraph';
 export * from './CenterBarGraph';
 export * from './PlayerMetricGraph';
@@ -20,3 +21,4 @@ export * from './BackendStatCardGrid';
 export * from './BackendStatsTable';
 export * from './BackendPlayerStatsTables';
 export * from './GameBackendStats';
+export * from './StatGlossary';

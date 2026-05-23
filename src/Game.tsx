@@ -6,7 +6,8 @@ import { formatGameDateTime } from './utils/dateTime'
 import { 
   PitchZoneSpinner,
   TeamTable, 
-  WinOMeter, 
+  WinOMeter,
+  WinOMeterExplainer,
   KeyInsights,
   AdvancedGameAnalysis,
   GameScoreboard,
@@ -15,6 +16,7 @@ import {
   BatterDetailTable,
   PitcherDetailTable,
   GameBackendStats,
+  StatGlossary,
   type GameQuickLink
 } from './components'
 import { getGame } from './api'
@@ -27,6 +29,7 @@ const gameQuickLinks = [
   { href: '#team-metrics', label: 'Team Metrics' },
   { href: '#key-players', label: 'Key Players' },
   { href: '#backend-stats', label: 'Raw Stats' },
+  { href: '#stat-glossary', label: 'Glossary' },
 ] satisfies GameQuickLink[];
 
 /**
@@ -71,6 +74,7 @@ export function Game() {
             <GameQuickLinks links={gameQuickLinks} />
             <GameStoryHeader game={game} />
           </div>
+          <WinOMeterExplainer home={game?.teams.home} away={game?.teams.away} />
           <WinOMeter home={game?.teams.home} away={game?.teams.away} />
           <GameScoreboard game={game} />
           <KeyInsights game={game} />
@@ -84,6 +88,7 @@ export function Game() {
           <BatterDetailTable batters={game?.batters} />
           <PitcherDetailTable pitchers={game?.pitchers} />
           <GameBackendStats game={game} />
+          <StatGlossary />
         </>
       )}
     </div>

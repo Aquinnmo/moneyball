@@ -67,24 +67,26 @@ export function GamesPicker() {
   };
 
   return (
-    <div>
-      <h1>Game Picker</h1>
+    <main className="game-picker-page">
       <NavBar />
-      
-      <h2>Games for {formatDisplayDate(currentDate)}:</h2>
+
+      <header className="game-picker-header">
+        <h1>Game Picker</h1>
+        <h2>Games for {formatDisplayDate(currentDate)}</h2>
+      </header>
       
       <section className="games-section">
         <div className="date-controls">
-        <button className="date-btn" onClick={handlePrevDay}>Previous Day</button>
-        <input 
-          type="date" 
-          value={currentDate} 
-          max={latestAvailableDateStr}
-          className="date-input"
-          onChange={handleDateChange} 
-        />
-        <button className="date-btn" onClick={handleNextDay} disabled={isNextDayDisabled}>Next Day</button>
-      </div>
+          <button className="date-btn" onClick={handlePrevDay}>Previous Day</button>
+          <input
+            type="date"
+            value={currentDate}
+            max={latestAvailableDateStr}
+            className="date-input"
+            onChange={handleDateChange}
+          />
+          <button className="date-btn" onClick={handleNextDay} disabled={isNextDayDisabled}>Next Day</button>
+        </div>
         <div className="games-list" aria-busy={loading}>
           {loading ? (
             <BaseballDiamondSpinner
@@ -105,6 +107,6 @@ export function GamesPicker() {
           )}
         </div>
       </section>
-    </div>
+    </main>
   ) 
 }

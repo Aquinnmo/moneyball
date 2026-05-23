@@ -1,16 +1,43 @@
 /* Hologram Theme Layout Overrides for GamesPicker.tsx */
 
-.date-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 15px;
-  margin: 30px auto;
-  padding: 15px;
+.game-picker-page {
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  width: min(100%, 960px);
 }
 
-h2 {
-  margin-top: 40px;
-  margin-bottom: 20px;
+.game-picker-page .main-navigation {
+  margin: 0 auto 28px;
+  padding: 0;
+}
+
+.game-picker-header {
+  display: grid;
+  gap: 12px;
+  margin: 0 auto 26px;
+}
+
+.game-picker-header h1,
+.game-picker-header h2 {
+  margin: 0;
+}
+
+.date-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 28px;
+}
+
+.date-btn {
+  min-width: 150px;
+}
+
+.date-input {
+  min-height: 38px;
 }
 
 .games-section {
