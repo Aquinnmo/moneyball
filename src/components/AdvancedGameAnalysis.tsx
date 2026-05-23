@@ -321,7 +321,7 @@ export function AdvancedGameAnalysis({ game }: AdvancedGameAnalysisProps) {
   }
 
   return (
-    <section className="advanced-analysis" aria-labelledby="advanced-analysis-title">
+    <section className="advanced-analysis" id="leaders" aria-labelledby="advanced-analysis-title">
       <div className="analysis-heading">
         <h2 className="section-title" id="advanced-analysis-title">The Leaders</h2>
       </div>

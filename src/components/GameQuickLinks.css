@@ -1,0 +1,33 @@
+.game-quick-links {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.game-quick-links h3 {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.game-quick-links a {
+  color: rgba(0, 242, 255, 0.78);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.game-quick-links a:hover,
+.game-quick-links a:focus-visible {
+  color: var(--hologram-cyan);
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .game-quick-links {
+    justify-content: flex-start;
+  }
+}

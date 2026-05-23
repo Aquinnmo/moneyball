@@ -1,0 +1,240 @@
+.backend-stats-panel {
+  text-align: left;
+}
+
+.backend-stats-dropdown summary {
+  align-items: center;
+  color: var(--hologram-cyan);
+  cursor: pointer;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  list-style: none;
+  padding: 18px 20px;
+  text-transform: uppercase;
+}
+
+.backend-stats-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.backend-stats-dropdown summary::after {
+  content: "+";
+  color: var(--hologram-cyan);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.backend-stats-dropdown[open] summary {
+  border-bottom: 1px dashed var(--hologram-cyan-glow);
+}
+
+.backend-stats-dropdown[open] summary::after {
+  content: "-";
+}
+
+.backend-stats-dropdown summary span {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.backend-stats-dropdown summary small {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.backend-stats-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 20px;
+}
+
+.backend-stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: default;
+}
+
+.backend-stats-section h3 {
+  color: var(--hologram-cyan);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.backend-key-value-list {
+  border-top: 1px solid var(--hologram-cyan-glow);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  cursor: default;
+}
+
+.backend-key-value-row {
+  border-bottom: 1px solid var(--hologram-cyan-glow);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(140px, 0.6fr) minmax(0, 1fr);
+  min-width: 0;
+  padding: 11px 0;
+}
+
+.backend-key-value-row dt,
+.backend-key-value-row dd {
+  color: var(--hologram-cyan);
+  margin: 0;
+  min-width: 0;
+}
+
+.backend-key-value-row dt {
+  font-size: 11px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.backend-key-value-row dd {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .backend-key-value-row {
+    grid-template-columns: minmax(110px, 0.7fr) minmax(0, 1fr);
+  }
+}
+
+.backend-stats-table {
+  min-width: 720px;
+}
+
+.backend-stats-table-wrap {
+  width: 100%;
+}
+
+.backend-stats-table-scroll {
+  max-height: 420px;
+  overflow: auto;
+}
+
+.backend-stats-table tbody th:first-child {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.88;
+  text-transform: none;
+}
+
+.backend-stats-table-groups th {
+  background: rgba(0, 242, 255, 0.04);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.backend-stats-table-scroll .backend-stats-table thead tr:last-child th {
+  background: var(--hologram-bg);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.backend-stats-table-scroll .backend-stats-table thead tr:last-child th:first-child {
+  z-index: 4;
+}
+
+.backend-stats-table-scroll .backend-stats-table tbody th:first-child {
+  z-index: 2;
+}
+
+.backend-player-stats-table {
+  min-width: 5600px;
+}
+
+.backend-player-stats-table th,
+.backend-player-stats-table td {
+  white-space: nowrap;
+}
+
+.backend-player-stats-table th:first-child,
+.backend-player-stats-table td:first-child {
+  min-width: 180px;
+}
+
+.backend-stat-card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.backend-stat-card {
+  background: rgba(0, 242, 255, 0.05);
+  border: 1px solid var(--hologram-cyan-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.backend-stat-card h4 {
+  border-bottom: 1px dashed var(--hologram-cyan-glow);
+  color: var(--hologram-cyan);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.backend-stat-card dl {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.backend-stat-card-row {
+  border-bottom: 1px solid var(--hologram-cyan-glow);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 7px 0;
+}
+
+.backend-stat-card-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.backend-stat-card-row dt,
+.backend-stat-card-row dd {
+  color: var(--hologram-cyan);
+  margin: 0;
+  min-width: 0;
+}
+
+.backend-stat-card-row dt {
+  font-size: 11px;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.backend-stat-card-row dd {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+@media (max-width: 1080px) {
+  .backend-stat-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .backend-stat-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

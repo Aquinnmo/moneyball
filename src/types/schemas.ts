@@ -3,6 +3,77 @@ import { z } from 'zod';
 const JsonRecordSchema = z.record(z.string(), z.unknown());
 export const maybe = <T extends z.ZodTypeAny>(schema: T) => schema.nullable().optional();
 
+type UnknownRecord = Record<string, unknown>;
+
+function isUnknownRecord(value: unknown): value is UnknownRecord {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function extractStringValue(value: unknown): string | null | undefined {
+    if (value == null) {
+        return value;
+    }
+
+    if (typeof value === 'string') {
+        return value;
+    }
+
+    if (isUnknownRecord(value)) {
+        const code = value.code;
+        const abbreviation = value.abbreviation;
+        const description = value.description;
+
+        if (typeof code === 'string') {
+            return code;
+        }
+
+        if (typeof abbreviation === 'string') {
+            return abbreviation;
+        }
+
+        if (typeof description === 'string') {
+            return description;
+        }
+    }
+
+    return undefined;
+}
+
+function firstPresentString(values: unknown[]): string | null | undefined {
+    for (const value of values) {
+        const stringValue = extractStringValue(value);
+
+        if (stringValue != null && stringValue.trim() !== '') {
+            return stringValue;
+        }
+    }
+
+    return undefined;
+}
+
+function normalizeBatterInput(input: unknown): unknown {
+    if (!isUnknownRecord(input)) {
+        return input;
+    }
+
+    const batHand = firstPresentString([
+        input.batHand,
+        input.bat_hand,
+        input.batSide,
+        input.bat_side,
+        input.stand,
+    ]);
+
+    if (batHand == null) {
+        return input;
+    }
+
+    return {
+        ...input,
+        batHand,
+    };
+}
+
 export const ScheduleTeamSchema = z.object({
     team: z.object({
         id: z.number().positive(),
@@ -359,6 +430,9 @@ export const GameTeamSchema = z.object({
     expWinPitch: maybe(z.number()),
     expTimesOn: maybe(z.number()),
     expRunsAgainst: maybe(z.number()),
+    scoringChances: maybe(z.number()),
+    scoringChanceConversions: maybe(z.number()),
+    scoringChanceConversionRate: maybe(z.number()),
 });
 
 export const BattingLineSchema = z.object({
@@ -495,7 +569,7 @@ export const ExtendedGameTeamSchema = GameTeamSchema.extend({
     expectedOutcome: maybe(TeamExpectedOutcomeSchema),
 });
 
-export const BatterSchema = z.object({
+export const BatterSchema = z.preprocess(normalizeBatterInput, z.object({
     id: z.number().int(),
     fullName: maybe(z.string()),
     firstName: maybe(z.string()),
@@ -518,6 +592,9 @@ export const BatterSchema = z.object({
     avgBatSpeed: maybe(z.number()),
     maxBatSpeed: maybe(z.number()),
     avgExitVelo: maybe(z.number()),
+    rispPlateAppearances: maybe(z.number()),
+    rispConversions: maybe(z.number()),
+    rispConversionRate: maybe(z.number()),
     onHomeTeam: z.boolean(),
     abCount: maybe(z.number()),
     wobaCount: maybe(z.number()),
@@ -525,7 +602,7 @@ export const BatterSchema = z.object({
     expected: maybe(ExpectedBattingLineSchema),
     battedBall: maybe(BattedBallProfileSchema),
     plateDiscipline: maybe(PlateDisciplineSchema),
-});
+}));
 
 export const PitcherSchema = z.object({
     id: z.number().int(),

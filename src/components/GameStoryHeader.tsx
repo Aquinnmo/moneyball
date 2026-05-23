@@ -56,7 +56,7 @@ export function GameStoryHeader({ game }: GameStoryHeaderProps) {
   const headline = `The ${qualityLeader} win this game ${expectedWinner === 'away' ? (awayWin * 100).toFixed(1) : (homeWin * 100).toFixed(1)}% of the time.`
 
   return (
-    <section className="game-story-header hologram-bracket" aria-labelledby="game-story-title">
+    <section className="game-story-header hologram-bracket" id="game-story" aria-labelledby="game-story-title">
       <div>
         <h2 id="game-story-title">{headline}</h2>
       </div>

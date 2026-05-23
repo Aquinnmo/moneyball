@@ -1,0 +1,73 @@
+.main-navigation {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: -12px auto 22px;
+  padding: 0 16px;
+}
+
+a.main-navigation__control,
+button.main-navigation__control {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--hologram-cyan);
+  box-shadow: 0 0 8px var(--hologram-cyan-glow), inset 0 0 8px rgba(0, 242, 255, 0.1);
+  box-sizing: border-box;
+  color: var(--hologram-cyan);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--mono);
+  font-size: 14px;
+  justify-content: center;
+  letter-spacing: 1px;
+  line-height: 1;
+  margin: 0;
+  min-height: 38px;
+  min-width: 112px;
+  padding: 10px 16px;
+  position: relative;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+
+a.main-navigation__control::before,
+a.main-navigation__control::after {
+  content: none;
+}
+
+a.main-navigation__control:hover,
+a.main-navigation__control:focus-visible {
+  background: rgba(0, 242, 255, 0.2);
+  border-color: var(--hologram-cyan);
+  box-shadow: 0 0 15px var(--hologram-cyan), inset 0 0 15px var(--hologram-cyan-glow);
+  outline: none;
+}
+
+a.main-navigation__control--active {
+  background: rgba(0, 242, 255, 0.1);
+}
+
+button.main-navigation__control:disabled,
+button.main-navigation__control:disabled:hover {
+  background: rgba(95, 105, 110, 0.08);
+  border-color: rgba(160, 170, 175, 0.35);
+  box-shadow: none;
+  color: rgba(160, 170, 175, 0.75);
+  cursor: default;
+  text-shadow: none;
+}
+
+@media (max-width: 520px) {
+  .main-navigation {
+    gap: 8px;
+  }
+
+  a.main-navigation__control,
+  button.main-navigation__control {
+    flex: 1 1 96px;
+    min-width: 0;
+  }
+}

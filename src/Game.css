@@ -26,6 +26,18 @@
   text-transform: uppercase;
 }
 
+.game-story-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: 20px;
+}
+
+.game-container section[id],
+.game-container .section-title[id] {
+  scroll-margin-top: 20px;
+}
+
 .teams-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;

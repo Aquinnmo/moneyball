@@ -32,7 +32,7 @@ export function GameScoreboard({ game }: GameScoreboardProps) {
   const homeLabel = getTeamLabel(game, 'home');
 
   return (
-    <section className="scoreboard-panel hologram-bracket" aria-labelledby="scoreboard-title">
+    <section className="scoreboard-panel hologram-bracket" id="linescore" aria-labelledby="scoreboard-title">
       <div className="scoreboard-header">
         <h2 id="scoreboard-title">Linescore</h2>
       </div>

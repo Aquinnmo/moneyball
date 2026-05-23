@@ -87,7 +87,7 @@ export function WinOMeter({ home, away }: WinOMeterProps) {
   ];
 
   return (
-    <section className="win-panel hologram-bracket" aria-labelledby="win-o-meter-title">
+    <section className="win-panel hologram-bracket" id="win-o-meter" aria-labelledby="win-o-meter-title">
       <div className="win-panel-header">
         <h2 id="win-o-meter-title">Win-O-Meter</h2>
       </div>

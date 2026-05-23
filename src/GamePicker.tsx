@@ -10,17 +10,16 @@ import {
   getAvailableDateWindow,
   getScheduleGameStartTimestamp,
 } from './utils/dateTime'
-import './App.css'
-import { BaseballDiamondSpinner } from './components';
+import './GamePicker.css'
+import { BaseballDiamondSpinner, NavBar } from './components';
 
 /**
- * App Component
+ * GamesPicker Component
  * 
- * The main landing page of the application. Displays the schedule of games 
- * for a selected date. Allows the user to navigate between days and click on 
+ * Displays the schedule of games for a selected date. Allows the user to navigate between days and click on 
  * individual games to view deeper advanced stats.
  */
-export function App() {
+export function GamesPicker() {
   const { todayStr, latestAvailableDateStr } = getAvailableDateWindow();
   const [schedule, setSchedule] = useState<Schedule>([])
   const [loading, setLoading] = useState(true);
@@ -68,22 +67,26 @@ export function App() {
   };
 
   return (
-    <div>
-      <h1>Moneyball</h1>
+    <main className="game-picker-page">
+      <NavBar />
+
+      <header className="game-picker-header">
+        <h1>Game Picker</h1>
+        <h2>Games for {formatDisplayDate(currentDate)}</h2>
+      </header>
       
-      <div className="date-controls">
-        <button className="date-btn" onClick={handlePrevDay}>Previous Day</button>
-        <input 
-          type="date" 
-          value={currentDate} 
-          max={latestAvailableDateStr}
-          className="date-input"
-          onChange={handleDateChange} 
-        />
-        <button className="date-btn" onClick={handleNextDay} disabled={isNextDayDisabled}>Next Day</button>
-      </div>
       <section className="games-section">
-        <h2>Games for {formatDisplayDate(currentDate)}:</h2>
+        <div className="date-controls">
+          <button className="date-btn" onClick={handlePrevDay}>Previous Day</button>
+          <input
+            type="date"
+            value={currentDate}
+            max={latestAvailableDateStr}
+            className="date-input"
+            onChange={handleDateChange}
+          />
+          <button className="date-btn" onClick={handleNextDay} disabled={isNextDayDisabled}>Next Day</button>
+        </div>
         <div className="games-list" aria-busy={loading}>
           {loading ? (
             <BaseballDiamondSpinner
@@ -104,6 +107,6 @@ export function App() {
           )}
         </div>
       </section>
-    </div>
+    </main>
   ) 
 }

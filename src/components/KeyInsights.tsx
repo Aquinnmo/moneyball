@@ -108,7 +108,7 @@ export function KeyInsights({ game }: KeyInsightsProps) {
   }
 
   return (
-    <section className="key-insights-container" aria-labelledby="key-insights-title">
+    <section className="key-insights-container" id="game-insights" aria-labelledby="key-insights-title">
       <div className="insights-header">
         <h2 id="key-insights-title">Game Insights</h2>
       </div>
