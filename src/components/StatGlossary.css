@@ -1,19 +1,18 @@
 .stat-glossary {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 22px;
-  background: var(--hologram-panel-bg);
+  display: block;
   scroll-margin-top: 20px;
 }
 
 .stat-glossary-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
+  color: var(--hologram-cyan);
+  display: flex;
   gap: 16px;
   cursor: pointer;
+  justify-content: space-between;
   list-style: none;
+  padding: 18px 20px;
+  text-transform: uppercase;
 }
 
 .stat-glossary-summary::-webkit-details-marker {
@@ -21,30 +20,14 @@
 }
 
 .stat-glossary-summary span {
-  color: var(--hologram-cyan);
-  font-size: 28px;
-  line-height: 1.1;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px var(--hologram-cyan-glow);
-}
-
-.stat-glossary-summary strong {
-  padding: 8px 10px;
-  color: rgba(0, 242, 255, 0.82);
-  border: 1px solid var(--hologram-cyan-glow);
-  font-size: 12px;
+  font-size: 22px;
   font-weight: 500;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .stat-glossary-summary::after {
   content: "+";
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: end;
   color: var(--hologram-cyan);
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1;
 }
 
@@ -52,11 +35,15 @@
   content: "-";
 }
 
+.stat-glossary[open] .stat-glossary-summary {
+  border-bottom: 1px dashed var(--hologram-cyan-glow);
+}
+
 .stat-glossary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
-  padding-top: 24px;
+  padding: 20px;
 }
 
 .stat-glossary-card {
@@ -112,25 +99,8 @@
 }
 
 @media (max-width: 720px) {
-  .stat-glossary {
-    padding: 18px;
-  }
-
   .stat-glossary-summary {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .stat-glossary-summary strong {
-    width: fit-content;
-  }
-
-  .stat-glossary-summary::after {
-    grid-column: 2;
-    justify-self: end;
-  }
-
-  .stat-glossary-summary span {
-    font-size: 22px;
+    padding: 16px 18px;
   }
 
   .stat-glossary-grid {

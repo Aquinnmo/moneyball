@@ -367,7 +367,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
       <div className="game-graphs-panel hologram-bracket">
         <div className="game-graphs-toolbar">
           <div className="game-graphs-field">
-            <label htmlFor="game-graphs-side-of-ball">side of ball</label>
+            <label htmlFor="game-graphs-side-of-ball">SIDE OF BALL</label>
             <select
               id="game-graphs-side-of-ball"
               value={sideOfBall}
@@ -379,7 +379,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
           </div>
 
           <div className="game-graphs-field">
-            <label htmlFor="game-graphs-stat">stat</label>
+            <label htmlFor="game-graphs-stat">STAT</label>
             <select
               id="game-graphs-stat"
               value={selectedMetricKey}
@@ -400,7 +400,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
           </div>
 
           <div className="game-graphs-field">
-            <label htmlFor="game-graphs-team">team</label>
+            <label htmlFor="game-graphs-team">TEAM</label>
             <select
               id="game-graphs-team"
               value={teamFilter}
@@ -413,7 +413,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
           </div>
 
           <div className="game-graphs-field game-graphs-field-compact">
-            <label htmlFor="game-graphs-sort">sort</label>
+            <label htmlFor="game-graphs-sort">ORDER</label>
             <select
               id="game-graphs-sort"
               value={sortDirection}

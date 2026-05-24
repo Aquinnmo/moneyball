@@ -621,8 +621,7 @@ export function StatGlossary() {
   return (
     <details className="stat-glossary hologram-bracket" id="stat-glossary">
       <summary className="stat-glossary-summary">
-        <span>Stat Glossary</span>
-        <strong>{glossaryEntries.length} stats</strong>
+        <span>Glossary</span>
       </summary>
       <div className="stat-glossary-grid" aria-label="Game page stat definitions">
         {glossaryEntries.map((entry) => (
