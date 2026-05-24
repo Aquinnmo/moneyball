@@ -28,18 +28,25 @@
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .game-graphs-field {
   display: flex;
+  flex: 0 1 160px;
   flex-direction: column;
   gap: 7px;
-  min-width: 180px;
+  min-width: 150px;
 }
 
 .game-graphs-field-compact {
-  min-width: 110px;
+  flex-basis: 118px;
+  min-width: 118px;
+}
+
+.game-graphs-field-wide {
+  flex: 1 1 240px;
+  min-width: 220px;
 }
 
 .game-graphs-field label {
@@ -74,6 +81,7 @@
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
+  margin-left: auto;
 }
 
 .game-graphs-legend span {
@@ -121,6 +129,7 @@
 
   .game-graphs-legend {
     justify-content: flex-start;
+    margin-left: 0;
   }
 
   .game-graphs-field {

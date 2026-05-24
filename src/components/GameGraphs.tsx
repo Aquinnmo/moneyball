@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import type { Batter, GameData, GraphDataPoint, GraphSortDirection, GraphValueMode, Pitcher } from '../types';
+import type {
+  Batter,
+  GameData,
+  GraphDataPoint,
+  GraphDisplayMode,
+  GraphSortDirection,
+  GraphStatSource,
+  GraphStatType,
+  GraphValueMode,
+  Pitcher,
+} from '../types';
 import { formatNumber } from './format';
 import { Graph } from './Graph';
 import './GameGraphs.css';
@@ -14,17 +24,45 @@ interface PlayerGraphMetric<TPlayer extends Batter | Pitcher> {
   title: string;
   optionLabel: string;
   roundTo: number;
+  statSource: GraphStatSource;
+  statType: GraphStatType;
   valueMode: GraphValueMode;
+  displayMode?: GraphDisplayMode;
   getValue: (player: TPlayer) => number | null;
   getTooltipData: (player: TPlayer, value: number, teamLabel: string) => GraphDataPoint['tooltipData'];
+}
+
+interface ShareMetricConfig {
+  paths: string[][];
+  optionLabel?: string;
+  titleLabel?: string;
+  valueLabel?: string;
+  key?: string;
+  roundTo?: number;
 }
 
 type SideOfBall = 'batting' | 'pitching';
 type TeamFilter = 'both' | 'away' | 'home';
 type GraphPlayer = Batter | Pitcher;
 
+const graphStatTypes: GraphStatType[] = ['totals', 'averages', 'share'];
+const graphStatSources: GraphStatSource[] = ['expected', 'actual'];
+
+const graphStatTypeLabels: Record<GraphStatType, string> = {
+  totals: 'Totals',
+  averages: 'Averages',
+  share: 'Share',
+};
+
+const graphStatSourceLabels: Record<GraphStatSource, string> = {
+  expected: 'Expected',
+  actual: 'Actual',
+};
+
 const BATTER_DEFAULT_METRIC_KEY = 'expected.xRunsCreated';
+const BATTER_SHARE_METRIC_KEY = 'share.expected.xRunsCreated';
 const PITCHER_DEFAULT_METRIC_KEY = 'expected.expectedRunsAllowed';
+const PITCHER_SHARE_METRIC_KEY = 'share.expected.expectedRunsAllowed';
 
 const skippedStatKeys = new Set([
   'id',
@@ -50,17 +88,98 @@ const pathLabelOverrides: Record<string, string> = {
   avgBatSpeed: 'Avg Bat Speed',
   avgExitVelo: 'Avg Exit Velo',
   avgLA: 'Avg LA',
+  ballsInPlay: 'Balls In Play',
+  battersFaced: 'Batters Faced',
+  calledStrikesPlusWhiffs: 'CSW',
+  contactRunValue: 'Contact Run Value',
+  contactRunValueAllowed: 'Contact Run Value Allowed',
+  disciplineRunValue: 'Discipline Run Value',
+  disciplineRunValueAllowed: 'Discipline Run Value Allowed',
+  hardHitBalls: 'Hard Hit Balls',
+  hitsAllowed: 'Hits Allowed',
   maxBatSpeed: 'Max Bat Speed',
   maxExitVelo: 'Max Exit Velo',
   expectedRunsAllowed: 'xRuns Against',
+  qualityAdjustedRuns: 'Quality Adjusted Runs',
+  qualityAdjustedRunsAllowed: 'Quality Adjusted Runs Allowed',
+  sweetSpotBalls: 'Sweet Spot Balls',
+  totalBases: 'Total Bases',
   xBA: 'xBA',
   xOBP: 'xOBP',
   xWOBA: 'xWOBA',
   xWOBAAllowed: 'xWOBA Allowed',
+  xHits: 'xHits',
+  xHitsAllowed: 'xHits Allowed',
+  xHomeRuns: 'xHome Runs',
+  xHomeRunsAllowed: 'xHome Runs Allowed',
+  xLinearWeightRuns: 'xLinear Weight Runs',
   xOPS: 'xOPS',
   xRunsCreated: 'xRC',
   xRunsCreatedPerPA: 'xRC / PA',
+  xTotalBases: 'xTotal Bases',
+  xTotalBasesAllowed: 'xTotal Bases Allowed',
+  xWeightedTimesOnBase: 'xWeighted Times On Base',
+  xWeightedTimesOnBaseAllowed: 'xWeighted Times On Base Allowed',
 };
+
+const batterShareMetricConfigs: ShareMetricConfig[] = [
+  { paths: [['batting', 'totalBases']] },
+  { paths: [['expected', 'xHits']] },
+  { paths: [['expected', 'xTotalBases']] },
+  { paths: [['expected', 'xWeightedTimesOnBase']] },
+  {
+    paths: [['expected', 'xRunsCreated']],
+    optionLabel: 'xRC Share',
+    titleLabel: 'xRC',
+    valueLabel: 'xRC',
+    key: BATTER_SHARE_METRIC_KEY,
+    roundTo: 2,
+  },
+  { paths: [['expected', 'xLinearWeightRuns']] },
+  { paths: [['expected', 'qualityAdjustedRuns']] },
+  { paths: [['expected', 'contactRunValue']] },
+  { paths: [['expected', 'disciplineRunValue']] },
+  { paths: [['expected', 'xHomeRuns']] },
+  { paths: [['battedBall', 'ballsInPlay']] },
+  { paths: [['battedBall', 'hardHitBalls']] },
+  { paths: [['battedBall', 'barrels']] },
+  { paths: [['battedBall', 'sweetSpotBalls']] },
+  { paths: [['plateDiscipline', 'pitches']] },
+  { paths: [['plateDiscipline', 'strikes']] },
+  { paths: [['plateDiscipline', 'balls']] },
+  { paths: [['plateDiscipline', 'swings']] },
+  { paths: [['plateDiscipline', 'whiffs']] },
+  { paths: [['plateDiscipline', 'calledStrikesPlusWhiffs']] },
+];
+
+const pitcherShareMetricConfigs: ShareMetricConfig[] = [
+  { paths: [['pitching', 'battersFaced'], ['battersFaced']] },
+  { paths: [['pitching', 'outs'], ['outs']] },
+  { paths: [['pitching', 'pitches'], ['plateDiscipline', 'pitches']] },
+  { paths: [['pitching', 'strikes'], ['plateDiscipline', 'strikes']] },
+  { paths: [['pitching', 'balls'], ['plateDiscipline', 'balls']] },
+  { paths: [['pitching', 'hitsAllowed'], ['hitsAgainst']] },
+  { paths: [['pitching', 'strikeouts'], ['strikeouts']] },
+  {
+    paths: [['expected', 'expectedRunsAllowed'], ['expRunsAgainst']],
+    optionLabel: 'xRuns Allowed Share',
+    titleLabel: 'xRuns Allowed',
+    valueLabel: 'xRuns Allowed',
+    key: PITCHER_SHARE_METRIC_KEY,
+    roundTo: 2,
+  },
+  { paths: [['expected', 'qualityAdjustedRunsAllowed']] },
+  { paths: [['expected', 'xHitsAllowed']] },
+  { paths: [['expected', 'xTotalBasesAllowed']] },
+  { paths: [['expected', 'xWeightedTimesOnBaseAllowed']] },
+  { paths: [['expected', 'xHomeRunsAllowed']] },
+  { paths: [['expected', 'contactRunValueAllowed']] },
+  { paths: [['expected', 'disciplineRunValueAllowed']] },
+  { paths: [['contactAllowed', 'ballsInPlay']] },
+  { paths: [['contactAllowed', 'hardHitBalls']] },
+  { paths: [['contactAllowed', 'barrels']] },
+  { paths: [['contactAllowed', 'sweetSpotBalls']] },
+];
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -136,6 +255,18 @@ function getNumberAtPath(player: GraphPlayer, path: readonly string[]): number |
   return isFiniteNumber(value) ? value : null;
 }
 
+function getNumberAtFirstPath(player: GraphPlayer, paths: readonly string[][]): number | null {
+  for (const path of paths) {
+    const value = getNumberAtPath(player, path);
+
+    if (value != null) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
 function isGraphableLeafValue(value: unknown): boolean {
   return value == null || isFiniteNumber(value);
 }
@@ -184,6 +315,32 @@ function getMetricRoundTo(path: readonly string[], values: number[]): number {
   return 2;
 }
 
+function getMetricStatSource(path: readonly string[]): GraphStatSource {
+  const key = getPathKey(path);
+  const leaf = path[path.length - 1];
+
+  if (
+    path.includes('expected')
+    || /^x[A-Z]/.test(leaf)
+    || /^exp[A-Z]/.test(leaf)
+    || /expected|AboveExpected|qualityAdjusted/i.test(key)
+  ) {
+    return 'expected';
+  }
+
+  return 'actual';
+}
+
+function getMetricStatType(path: readonly string[]): GraphStatType {
+  const leaf = path[path.length - 1];
+
+  if (/rate|percentage|average|avg|per|oba|ops|slg|babip|isolatedPower|^xBA|^xOBP|^xWOBA|^xSLG|^xOPS|max/i.test(leaf)) {
+    return 'averages';
+  }
+
+  return 'totals';
+}
+
 function getMetricValueMode(path: readonly string[], values: number[]): GraphValueMode {
   const key = getPathKey(path);
 
@@ -228,6 +385,8 @@ function createPathMetric<TPlayer extends GraphPlayer>(
     title: `${sideOfBall === 'batting' ? 'Batter' : 'Pitcher'} ${optionLabel}`,
     optionLabel,
     roundTo: getMetricRoundTo(path, values),
+    statSource: getMetricStatSource(path),
+    statType: getMetricStatType(path),
     valueMode: getMetricValueMode(path, values),
     getValue: (player) => getNumberAtPath(player, path),
     getTooltipData: (player, value, teamLabel) => ({
@@ -238,22 +397,63 @@ function createPathMetric<TPlayer extends GraphPlayer>(
   };
 }
 
-function setMetricOverride<TPlayer extends GraphPlayer>(
-  metrics: PlayerGraphMetric<TPlayer>[],
-  override: PlayerGraphMetric<TPlayer>,
+function createShareMetric<TPlayer extends GraphPlayer>(
+  players: TPlayer[],
+  config: ShareMetricConfig,
+  sideOfBall: SideOfBall,
+): PlayerGraphMetric<TPlayer> | null {
+  const values = players
+    .map((player) => getNumberAtFirstPath(player, config.paths))
+    .filter((value): value is number => value != null);
+
+  if (!values.some((value) => value > 0)) {
+    return null;
+  }
+
+  const primaryPath = config.paths[0];
+  const baseLabel = config.valueLabel ?? formatMetricLabel(primaryPath);
+  const optionLabel = config.optionLabel ?? `${baseLabel} Share`;
+  const roundTo = config.roundTo ?? getMetricRoundTo(primaryPath, values);
+
+  return {
+    key: config.key ?? `share.${getPathKey(primaryPath)}`,
+    title: `${sideOfBall === 'batting' ? 'Batter' : 'Pitcher'} ${config.titleLabel ?? baseLabel} Share`,
+    optionLabel,
+    roundTo,
+    statSource: getMetricStatSource(primaryPath),
+    statType: 'share',
+    valueMode: 'non-negative',
+    displayMode: 'pie',
+    getValue: (player) => getNumberAtFirstPath(player, config.paths),
+    getTooltipData: (player, value, teamLabel) => ({
+      Team: teamLabel,
+      [baseLabel]: formatNumber(value, roundTo),
+      ...getSupportTooltipData(player, sideOfBall),
+    }),
+  };
+}
+
+function createShareMetrics<TPlayer extends GraphPlayer>(
+  players: TPlayer[],
+  configs: ShareMetricConfig[],
+  sideOfBall: SideOfBall,
 ): PlayerGraphMetric<TPlayer>[] {
-  const nextMetrics = metrics.filter((metric) => metric.key !== override.key);
-  return [override, ...nextMetrics];
+  return configs
+    .map((config) => createShareMetric(players, config, sideOfBall))
+    .filter((metric): metric is PlayerGraphMetric<TPlayer> => metric != null);
 }
 
 function createBatterMetrics(batters: Batter[]): PlayerGraphMetric<Batter>[] {
   const metrics = collectGraphStatPaths(batters).map((path) => createPathMetric(batters, path, 'batting'));
+  const shareMetrics = createShareMetrics(batters, batterShareMetricConfigs, 'batting');
 
-  return setMetricOverride(metrics, {
+  const xrcMetric: PlayerGraphMetric<Batter> = {
     key: BATTER_DEFAULT_METRIC_KEY,
     title: 'Batter xRC',
     optionLabel: 'xRC',
     roundTo: 2,
+    statSource: 'expected',
+    statType: 'totals',
     valueMode: 'non-negative',
     getValue: (batter) => {
       const xrc = batter.expected?.xRunsCreated;
@@ -265,17 +465,23 @@ function createBatterMetrics(batters: Batter[]): PlayerGraphMetric<Batter>[] {
       PA: getPlateAppearances(batter),
       Hits: batter.hits,
     }),
-  });
+  };
+
+  const nextMetrics = metrics.filter((metric) => metric.key !== xrcMetric.key);
+  return [xrcMetric, ...shareMetrics, ...nextMetrics];
 }
 
 function createPitcherMetrics(pitchers: Pitcher[]): PlayerGraphMetric<Pitcher>[] {
   const metrics = collectGraphStatPaths(pitchers).map((path) => createPathMetric(pitchers, path, 'pitching'));
+  const shareMetrics = createShareMetrics(pitchers, pitcherShareMetricConfigs, 'pitching');
 
-  return setMetricOverride(metrics, {
+  const xRunsAllowedMetric: PlayerGraphMetric<Pitcher> = {
     key: PITCHER_DEFAULT_METRIC_KEY,
     title: 'Pitcher xRuns Against',
     optionLabel: 'xRuns Against',
     roundTo: 2,
+    statSource: 'expected',
+    statType: 'totals',
     valueMode: 'non-negative',
     getValue: (pitcher) => {
       const xRunsAgainst = pitcher.expected?.expectedRunsAllowed ?? pitcher.expRunsAgainst;
@@ -287,7 +493,61 @@ function createPitcherMetrics(pitchers: Pitcher[]): PlayerGraphMetric<Pitcher>[]
       'Batters Faced': getBattersFaced(pitcher),
       Outs: getPitcherOuts(pitcher),
     }),
-  });
+  };
+
+  const nextMetrics = metrics.filter((metric) => metric.key !== xRunsAllowedMetric.key);
+  return [xRunsAllowedMetric, ...shareMetrics, ...nextMetrics];
+}
+
+function getAvailableStatSources(metrics: readonly { statSource: GraphStatSource }[]): GraphStatSource[] {
+  return graphStatSources.filter((source) => metrics.some((metric) => metric.statSource === source));
+}
+
+function getAvailableStatTypes(
+  metrics: readonly { statSource: GraphStatSource; statType: GraphStatType }[],
+  statSource: GraphStatSource,
+): GraphStatType[] {
+  return graphStatTypes.filter((statType) => (
+    metrics.some((metric) => metric.statSource === statSource && metric.statType === statType)
+  ));
+}
+
+function getEffectiveStatSource(selectedStatSource: GraphStatSource, availableSources: GraphStatSource[]): GraphStatSource {
+  if (availableSources.includes(selectedStatSource)) {
+    return selectedStatSource;
+  }
+
+  return availableSources[0] ?? 'expected';
+}
+
+function getEffectiveStatType(selectedStatType: GraphStatType, availableTypes: GraphStatType[]): GraphStatType {
+  if (availableTypes.includes(selectedStatType)) {
+    return selectedStatType;
+  }
+
+  return availableTypes[0] ?? 'totals';
+}
+
+function getPreferredMetricKey(sideOfBall: SideOfBall, statType: GraphStatType): string | null {
+  if (statType === 'share') {
+    return sideOfBall === 'pitching' ? PITCHER_SHARE_METRIC_KEY : BATTER_SHARE_METRIC_KEY;
+  }
+
+  if (statType === 'totals') {
+    return sideOfBall === 'pitching' ? PITCHER_DEFAULT_METRIC_KEY : BATTER_DEFAULT_METRIC_KEY;
+  }
+
+  return null;
+}
+
+function getFallbackMetric<TMetric extends { key: string }>(
+  metrics: readonly TMetric[],
+  sideOfBall: SideOfBall,
+  statType: GraphStatType,
+): TMetric | undefined {
+  const preferredMetricKey = getPreferredMetricKey(sideOfBall, statType);
+
+  return (preferredMetricKey ? metrics.find((metric) => metric.key === preferredMetricKey) : undefined) ?? metrics[0];
 }
 
 function isSelectedTeam(onHomeTeam: boolean, teamFilter: TeamFilter): boolean {
@@ -337,8 +597,39 @@ export function GameGraphs({ game }: GameGraphsProps) {
   const [sideOfBall, setSideOfBall] = useState<SideOfBall>('batting');
   const [teamFilter, setTeamFilter] = useState<TeamFilter>('both');
   const [sortDirection, setSortDirection] = useState<GraphSortDirection>('des');
+  const [batterStatSource, setBatterStatSource] = useState<GraphStatSource>('expected');
+  const [pitcherStatSource, setPitcherStatSource] = useState<GraphStatSource>('expected');
+  const [batterStatType, setBatterStatType] = useState<GraphStatType>('totals');
+  const [pitcherStatType, setPitcherStatType] = useState<GraphStatType>('totals');
   const [batterMetricKey, setBatterMetricKey] = useState<string>(BATTER_DEFAULT_METRIC_KEY);
   const [pitcherMetricKey, setPitcherMetricKey] = useState<string>(PITCHER_DEFAULT_METRIC_KEY);
+
+  const handleStatSourceChange = (statSource: GraphStatSource) => {
+    if (sideOfBall === 'pitching') {
+      setPitcherStatSource(statSource);
+      return;
+    }
+
+    setBatterStatSource(statSource);
+  };
+
+  const handleStatTypeChange = (statType: GraphStatType) => {
+    if (sideOfBall === 'pitching') {
+      setPitcherStatType(statType);
+      return;
+    }
+
+    setBatterStatType(statType);
+  };
+
+  const handleMetricChange = (metricKey: string) => {
+    if (sideOfBall === 'pitching') {
+      setPitcherMetricKey(metricKey);
+      return;
+    }
+
+    setBatterMetricKey(metricKey);
+  };
 
   if (!game) {
     return null;
@@ -347,8 +638,17 @@ export function GameGraphs({ game }: GameGraphsProps) {
   const batterGraphMetrics = createBatterMetrics(game.batters);
   const pitcherGraphMetrics = createPitcherMetrics(game.pitchers);
   const activeMetricKey = sideOfBall === 'pitching' ? pitcherMetricKey : batterMetricKey;
-  const metricOptions = sideOfBall === 'pitching' ? pitcherGraphMetrics : batterGraphMetrics;
-  const fallbackMetric = metricOptions[0];
+  const allMetricOptions = sideOfBall === 'pitching' ? pitcherGraphMetrics : batterGraphMetrics;
+  const activeStatSourceState = sideOfBall === 'pitching' ? pitcherStatSource : batterStatSource;
+  const activeStatTypeState = sideOfBall === 'pitching' ? pitcherStatType : batterStatType;
+  const statSourceOptions = getAvailableStatSources(allMetricOptions);
+  const selectedStatSource = getEffectiveStatSource(activeStatSourceState, statSourceOptions);
+  const statTypeOptions = getAvailableStatTypes(allMetricOptions, selectedStatSource);
+  const selectedStatType = getEffectiveStatType(activeStatTypeState, statTypeOptions);
+  const metricOptions = allMetricOptions.filter((metric) => (
+    metric.statSource === selectedStatSource && metric.statType === selectedStatType
+  ));
+  const fallbackMetric = getFallbackMetric(metricOptions, sideOfBall, selectedStatType);
   const activeMetric = metricOptions.find((metric) => metric.key === activeMetricKey) ?? fallbackMetric;
   const graphData = activeMetric
     ? sideOfBall === 'pitching'
@@ -367,7 +667,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
       <div className="game-graphs-panel hologram-bracket">
         <div className="game-graphs-toolbar">
           <div className="game-graphs-field">
-            <label htmlFor="game-graphs-side-of-ball">SIDE OF BALL</label>
+            <label htmlFor="game-graphs-side-of-ball">Side Of Ball</label>
             <select
               id="game-graphs-side-of-ball"
               value={sideOfBall}
@@ -378,18 +678,42 @@ export function GameGraphs({ game }: GameGraphsProps) {
             </select>
           </div>
 
-          <div className="game-graphs-field">
-            <label htmlFor="game-graphs-stat">STAT</label>
+          <div className="game-graphs-field game-graphs-field-compact">
+            <label htmlFor="game-graphs-stat-source">Stat Source</label>
+            <select
+              id="game-graphs-stat-source"
+              value={selectedStatSource}
+              onChange={(event) => handleStatSourceChange(event.target.value as GraphStatSource)}
+            >
+              {statSourceOptions.map((statSource) => (
+                <option value={statSource} key={statSource}>
+                  {graphStatSourceLabels[statSource]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="game-graphs-field game-graphs-field-compact">
+            <label htmlFor="game-graphs-stat-type">Stat Type</label>
+            <select
+              id="game-graphs-stat-type"
+              value={selectedStatType}
+              onChange={(event) => handleStatTypeChange(event.target.value as GraphStatType)}
+            >
+              {statTypeOptions.map((statType) => (
+                <option value={statType} key={statType}>
+                  {graphStatTypeLabels[statType]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="game-graphs-field game-graphs-field-wide">
+            <label htmlFor="game-graphs-stat">Stat</label>
             <select
               id="game-graphs-stat"
               value={selectedMetricKey}
-              onChange={(event) => {
-                if (sideOfBall === 'pitching') {
-                  setPitcherMetricKey(event.target.value);
-                } else {
-                  setBatterMetricKey(event.target.value);
-                }
-              }}
+              onChange={(event) => handleMetricChange(event.target.value)}
             >
               {metricOptions.map((metric) => (
                 <option value={metric.key} key={metric.key}>
@@ -399,8 +723,8 @@ export function GameGraphs({ game }: GameGraphsProps) {
             </select>
           </div>
 
-          <div className="game-graphs-field">
-            <label htmlFor="game-graphs-team">TEAM</label>
+          <div className="game-graphs-field game-graphs-field-compact">
+            <label htmlFor="game-graphs-team">Team</label>
             <select
               id="game-graphs-team"
               value={teamFilter}
@@ -413,7 +737,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
           </div>
 
           <div className="game-graphs-field game-graphs-field-compact">
-            <label htmlFor="game-graphs-sort">ORDER</label>
+            <label htmlFor="game-graphs-sort">Order</label>
             <select
               id="game-graphs-sort"
               value={sortDirection}
@@ -442,6 +766,7 @@ export function GameGraphs({ game }: GameGraphsProps) {
             data={graphData}
             roundTo={activeMetric.roundTo}
             valueMode={activeMetric.valueMode}
+            displayMode={activeMetric.displayMode}
             sortDirection={sortDirection}
           />
         ) : (

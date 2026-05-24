@@ -4,6 +4,7 @@ export * from './WinOMeterExplainer';
 export * from './Graph';
 export * from './HorizontalBarGraph';
 export * from './CenteredBarGraph';
+export * from './PieGraph';
 export * from './BaseballDiamondSpinner';
 export * from './PitchZoneSpinner';
 export * from './KeyInsights';
