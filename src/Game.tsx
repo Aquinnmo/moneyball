@@ -17,6 +17,7 @@ import {
   PitcherDetailTable,
   GameBackendStats,
   StatGlossary,
+  GameGraphs,
   type GameQuickLink
 } from './components'
 import { getGame } from './api'
@@ -28,6 +29,7 @@ const gameQuickLinks = [
   { href: '#leaders', label: 'Leaders' },
   { href: '#team-metrics', label: 'Team Metrics' },
   { href: '#key-players', label: 'Key Players' },
+  { href: '#graphs', label: 'Graphs' },
   { href: '#backend-stats', label: 'Raw Stats' },
   { href: '#stat-glossary', label: 'Glossary' },
 ] satisfies GameQuickLink[];
@@ -87,6 +89,7 @@ export function Game() {
           <h2 className='section-title' id="key-players">Key Players</h2>
           <BatterDetailTable batters={game?.batters} />
           <PitcherDetailTable pitchers={game?.pitchers} />
+          <GameGraphs game={game} />
           <GameBackendStats game={game} />
           <StatGlossary />
         </>

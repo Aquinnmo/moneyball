@@ -1,0 +1,145 @@
+.game-graphs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  scroll-margin-top: 20px;
+  text-align: left;
+}
+
+.game-graphs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  padding: 22px;
+}
+
+.game-graphs-panel .graph-container {
+  padding-bottom: 0;
+}
+
+.game-graphs-panel .graph-title {
+  border-bottom: 1px dashed var(--hologram-cyan-glow);
+  font-size: 18px;
+}
+
+.game-graphs-toolbar {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.game-graphs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 180px;
+}
+
+.game-graphs-field-compact {
+  min-width: 110px;
+}
+
+.game-graphs-field label {
+  color: rgba(0, 242, 255, 0.72);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.game-graphs-field select {
+  appearance: none;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--hologram-cyan) 50%) calc(100% - 18px) 50% / 6px 6px no-repeat,
+    linear-gradient(135deg, var(--hologram-cyan) 50%, transparent 50%) calc(100% - 12px) 50% / 6px 6px no-repeat,
+    var(--hologram-panel-bg);
+  border: 1px solid var(--hologram-cyan-glow);
+  color: var(--hologram-cyan);
+  font-family: var(--mono);
+  font-size: 13px;
+  min-height: 34px;
+  outline: none;
+  padding: 8px 32px 8px 10px;
+  text-transform: uppercase;
+}
+
+.game-graphs-field select:focus {
+  border-color: var(--hologram-cyan);
+  box-shadow: 0 0 10px var(--hologram-cyan-glow), inset 0 0 10px var(--hologram-cyan-glow);
+}
+
+.game-graphs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.game-graphs-legend span {
+  align-items: center;
+  border: 1px solid var(--hologram-cyan-glow);
+  color: rgba(0, 242, 255, 0.82);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 8px;
+  line-height: 1;
+  min-height: 28px;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
+.game-graphs-swatch {
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+}
+
+.game-graphs-swatch.away {
+  background: rgba(239, 68, 68, 0.85);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+.game-graphs-swatch.home {
+  background: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+}
+
+.game-graphs-empty {
+  border: 1px solid var(--hologram-cyan-glow);
+  color: rgba(0, 242, 255, 0.72);
+  margin: 0;
+  padding: 18px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .game-graphs-panel {
+    padding: 18px;
+  }
+
+  .game-graphs-legend {
+    justify-content: flex-start;
+  }
+
+  .game-graphs-field {
+    width: 100%;
+  }
+
+  .game-graphs-panel .graph-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .game-graphs-panel .graph-label {
+    text-align: left;
+    width: 100%;
+  }
+
+  .game-graphs-panel .graph-track {
+    flex: none;
+    width: 100%;
+  }
+}

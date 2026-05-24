@@ -1,4 +1,4 @@
-.center-bar-graph-container {
+.graph-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -6,7 +6,7 @@
   padding-bottom: 20px;
 }
 
-.center-bar-graph-title {
+.graph-title {
   margin: 0;
   font-family: var(--mono);
   color: var(--hologram-cyan);
@@ -19,7 +19,7 @@
   text-transform: uppercase;
 }
 
-.center-bar-graph {
+.graph-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -27,14 +27,14 @@
   position: relative;
 }
 
-.center-bar-row {
+.graph-row {
   display: flex;
   align-items: center;
   gap: 12px;
   position: relative;
 }
 
-.center-bar-label {
+.graph-label {
   width: 150px;
   text-align: right;
   font-family: var(--mono);
@@ -47,18 +47,16 @@
   text-shadow: 0 0 4px var(--hologram-cyan-glow);
 }
 
-.center-bar-track {
+.graph-track {
   flex: 1;
   height: 28px;
   background-color: var(--hologram-panel-bg);
   border: 1px solid var(--hologram-cyan-glow);
-  border-radius: 0px;
   position: relative;
   box-shadow: inset 0 0 8px var(--hologram-cyan-glow);
 }
 
-/* Centerline */
-.center-bar-track::before {
+.graph-track.centered::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -71,33 +69,53 @@
   transform: translateX(-50%);
 }
 
-.center-bar-fill {
+.graph-fill {
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.graph-fill.horizontal {
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.graph-fill.centered {
   position: absolute;
   top: 0;
   bottom: 0;
-  border-radius: 0px; /* Sharp edges for sci-fi look */
-  transition: width 0.3s ease, left 0.3s ease;
-  z-index: 2; /* Render slightly above centerline so hover doesn't blip */
+  z-index: 2;
 }
 
-/* Base Team Colors */
-.center-bar-fill.home {
-  background-color: rgba(59, 130, 246, 0.85); /* WinOMeter blue, more expressive */
-  border: 1px solid #3b82f6;
+.graph-fill.home {
+  background-color: rgba(59, 130, 246, 0.85);
+  border-color: #3b82f6;
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
 }
 
-.center-bar-fill.away {
-  background-color: rgba(239, 68, 68, 0.85); /* WinOMeter red, more expressive */
-  border: 1px solid #ef4444;
+.graph-fill.away {
+  background-color: rgba(239, 68, 68, 0.85);
+  border-color: #ef4444;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
 }
 
-.center-bar-fill:hover {
+.graph-fill.horizontal.home,
+.graph-fill.horizontal.away {
+  border-right-width: 2px;
+  border-right-style: solid;
+}
+
+.graph-fill.centered.home,
+.graph-fill.centered.away {
+  border-width: 1px;
+  border-style: solid;
+}
+
+.graph-fill:hover {
   filter: brightness(1.2);
 }
 
-.center-bar-value-label {
+.graph-value-label {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -105,34 +123,38 @@
   font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.5px;
-  text-shadow: 1px 1px 0px #000, -1px -1px 0px #000, 0px 0px 4px #000;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 0 0 4px #000;
 }
 
-/* Positive bars grow right */
-.center-bar-value-label.positive.inside {
+.graph-value-label.inside {
   color: #fff;
+}
+
+.graph-value-label.outside {
+  color: var(--hologram-cyan);
+}
+
+.graph-value-label.horizontal.inside,
+.graph-value-label.centered.positive.inside {
   right: 8px;
 }
 
-.center-bar-value-label.positive.outside {
-  color: var(--hologram-cyan);
+.graph-value-label.horizontal.outside,
+.graph-value-label.centered.positive.outside {
   left: calc(100% + 8px);
 }
 
-/* Negative bars grow left (text floats to the left edge of the bar) */
-.center-bar-value-label.negative.inside {
-  color: #fff;
+.graph-value-label.centered.negative.inside {
   left: 8px;
 }
 
-.center-bar-value-label.negative.outside {
-  color: var(--hologram-cyan);
+.graph-value-label.centered.negative.outside {
   right: calc(100% + 8px);
 }
 
-.center-bar-tooltip {
-  position: fixed; /* Fix overlap issues within responsive flex containers */
-  background-color: rgba(0, 15, 22, 0.98); /* Reduced transparency */
+.graph-tooltip {
+  position: fixed;
+  background-color: rgba(0, 15, 22, 0.98);
   border: 1px solid var(--hologram-cyan);
   box-shadow: 0 0 15px var(--hologram-cyan-glow), inset 0 0 15px var(--hologram-cyan-glow);
   padding: 14px;
@@ -142,8 +164,8 @@
   min-width: 150px;
 }
 
-.center-bar-tooltip h4 {
-  margin: 0 0 8px 0;
+.graph-tooltip h4 {
+  margin: 0 0 8px;
   font-family: var(--mono);
   color: var(--hologram-cyan);
   font-size: 16px;
@@ -152,13 +174,13 @@
   padding-bottom: 4px;
 }
 
-.center-bar-tooltip-grid {
+.graph-tooltip-grid {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 12px;
 }
 
-.center-bar-tooltip-label {
+.graph-tooltip-label {
   color: #aaa;
   font-family: var(--mono);
   font-size: 12px;
@@ -166,7 +188,7 @@
   text-align: left;
 }
 
-.center-bar-tooltip-val {
+.graph-tooltip-val {
   color: var(--hologram-cyan);
   font-family: var(--mono);
   font-size: 12px;
