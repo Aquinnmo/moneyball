@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "publish": "cross-env VITE_API_URL=https://moneyball-spring.onrender.com/ npm run deploy"
+    "publish": "cross-env VITE_API_URL=https://moneyball-api.adam-montgomery.ca/ npm run deploy"
   },
   "dependencies": {
     "react": "^19.2.5",
