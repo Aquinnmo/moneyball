@@ -9,7 +9,7 @@ import { Teams } from './Teams.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename='moneyball'>
+    <BrowserRouter>
       <Routes>
         <Route path="game/:gamePk" element={<Game />} />
         <Route path="games-picker" element={<GamesPicker />} />
