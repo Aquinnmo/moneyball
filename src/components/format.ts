@@ -21,3 +21,9 @@ export function formatSigned(value: number | null | undefined, digits = 2): stri
 export function getNumber(value: number | null | undefined, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
+
+/** Converts Savant's "Last, First" player name format to "First Last". Names without a comma pass through unchanged. */
+export function formatSavantName(name: string): string {
+  const [last, first] = name.split(',').map((part) => part.trim());
+  return first ? `${first} ${last}` : name;
+}

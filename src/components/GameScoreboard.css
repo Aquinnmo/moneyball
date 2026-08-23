@@ -61,3 +61,8 @@
 .start-board-section {
   border-left: 1px solid var(--hologram-cyan-glow);
 }
+.start-board-row > th,
+.start-board-row > td {
+  border-top: 2px solid var(--hologram-cyan);
+  box-shadow: 0 -4px 8px -4px var(--hologram-cyan);
+}

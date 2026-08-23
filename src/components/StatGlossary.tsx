@@ -609,6 +609,31 @@ const glossaryEntries: StatGlossaryEntry[] = [
     group: 'Game Model',
     description: 'Flag for games where the final score winner differs from the expected-quality winner.',
   },
+  {
+    term: 'Expected Wins',
+    aliases: ['xW', 'xL'],
+    group: 'Season Standings',
+    description: 'Model estimate of a team\'s win total (xW) and its complement, expected losses (xL), from the underlying quality of its games across the season.',
+  },
+  {
+    term: 'Luck',
+    group: 'Season Standings',
+    description: 'Actual wins minus expected wins.',
+    reading: 'Positive means the team is winning more than its game quality suggests; negative means less.',
+  },
+  {
+    term: 'BA − xBA',
+    aliases: ['SLG − xSLG', 'wOBA − xwOBA', 'ERA − xERA'],
+    group: 'Season Leaderboards',
+    description: 'Actual stat minus its Statcast-expected counterpart for the season.',
+    reading: 'Positive is better for BA, SLG, and wOBA; for ERA, lower is better, so negative means better-than-expected run prevention.',
+  },
+  {
+    term: 'Qualified',
+    aliases: ['min=q'],
+    group: 'Season Leaderboards',
+    description: 'Backend\'s default minimum-playing-time threshold for season leaderboards, comparable to a batting or ERA title qualifier.',
+  },
 ];
 
 /**

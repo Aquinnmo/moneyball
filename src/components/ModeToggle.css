@@ -1,0 +1,12 @@
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 auto 20px;
+}
+
+.mode-toggle__btn--active {
+  background: rgba(0, 242, 255, 0.2);
+  box-shadow: 0 0 15px var(--hologram-cyan), inset 0 0 15px var(--hologram-cyan-glow);
+}

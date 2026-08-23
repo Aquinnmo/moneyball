@@ -153,6 +153,21 @@
   min-width: 5600px;
 }
 
+.backend-stats-table-sort-button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: none;
+}
+
+.backend-stats-table-sort-button:hover,
+.backend-stats-table-sort-button:focus-visible {
+  color: var(--hologram-cyan);
+}
+
 .backend-player-stats-table th,
 .backend-player-stats-table td {
   white-space: nowrap;
