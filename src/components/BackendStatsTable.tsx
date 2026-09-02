@@ -100,12 +100,44 @@ function ariaSortFor(
   return sortDirection === 'asc' ? 'ascending' : 'descending';
 }
 
+/** Placeholder rendered for a missing value; see formatBackendStatsTableValue. */
+const NO_VALUE = '--';
+
+/**
+ * Reduces a cell to something comparable, or null when it holds no value.
+ *
+ * Cells carry pre-formatted display strings as often as raw numbers — "+0.018"
+ * from formatSigned, "45.0%" from formatPercent. Comparing those as text sorts
+ * them by sign group and then magnitude, which puts the values nearest zero on
+ * top in *both* directions, so anything numeric-looking is coerced back to a
+ * number. Real text is left alone.
+ */
+function toSortValue(value: BackendStatsTableValue): number | string | null {
+  if (value == null || value === '' || value === NO_VALUE) {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'boolean') {
+    return String(value);
+  }
+
+  const stripped = value.replace(/[+,%\s]/g, '');
+  const numeric = Number(stripped);
+
+  return stripped !== '' && Number.isFinite(numeric) ? numeric : value;
+}
+
 /**
  * Sorts backend stat table rows by a column key.
  *
- * Numeric cells compare numerically; everything else falls back to
- * locale-aware string comparison. Missing values (null, undefined, '')
- * always sort last regardless of direction. Returns a new array.
+ * Numeric cells — including numbers held as formatted strings — compare
+ * numerically; everything else falls back to locale-aware string comparison.
+ * Missing values (null, undefined, '', '--') always sort last regardless of
+ * direction. Returns a new array.
  *
  * @param rows - Rows to sort.
  * @param key - Column key to sort by.
@@ -119,14 +151,12 @@ export function sortBackendStatsRows(
   const sign = direction === 'asc' ? 1 : -1;
 
   return [...rows].sort((rowA, rowB) => {
-    const a = rowA.cells[key];
-    const b = rowB.cells[key];
-    const aEmpty = a == null || a === '';
-    const bEmpty = b == null || b === '';
+    const a = toSortValue(rowA.cells[key]);
+    const b = toSortValue(rowB.cells[key]);
 
-    if (aEmpty && bEmpty) return 0;
-    if (aEmpty) return 1;
-    if (bEmpty) return -1;
+    if (a === null && b === null) return 0;
+    if (a === null) return 1;
+    if (b === null) return -1;
 
     if (typeof a === 'number' && typeof b === 'number') {
       return (a - b) * sign;

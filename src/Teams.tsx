@@ -250,12 +250,14 @@ export function Teams() {
 
   return (
     <main className={`teams-page teams-page--${view}`}>
-      <div className="teams-header">
+      <NavBar />
+
+      <header className="teams-header">
         <h1>Teams</h1>
-        <NavBar />
-      </div>
-      <ModeToggle ariaLabel="Standings view" onChange={setView} options={teamViewOptions} value={view} />
+      </header>
+
       <SeasonControls year={SEASON} />
+      <ModeToggle ariaLabel="Standings view" onChange={setView} options={teamViewOptions} value={view} />
       {error ? (
         <p className="teams-error" role="alert">{error}</p>
       ) : loading ? (

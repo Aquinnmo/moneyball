@@ -196,17 +196,19 @@ export function Players() {
 
   return (
     <main className="players-page">
-      <div className="players-header">
+      <NavBar />
+
+      <header className="players-header">
         <h1>Players</h1>
-        <NavBar />
-      </div>
+      </header>
+
+      <SeasonControls min={min} onMinChange={setMin} onYearChange={setYear} year={year} />
       <ModeToggle
         ariaLabel="Stat type"
         onChange={handleModeChange}
         options={playerModeOptions}
         value={mode}
       />
-      <SeasonControls min={min} onMinChange={setMin} onYearChange={setYear} year={year} />
       <label className="players-search">
         <span>Search by name</span>
         <input
