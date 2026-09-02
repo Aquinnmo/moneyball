@@ -8,6 +8,7 @@ import {
   type SeasonTeamLine,
   type TeamStandingLine,
 } from './types';
+import { buildLeagueStandings, WILD_CARD_SPOTS, type StandingsBasis } from './standings.ts';
 import {
   BackendStatsTable,
   BaseballDiamondSpinner,
@@ -31,8 +32,11 @@ const teamViewOptions = [
   { value: 'overall', label: 'Overall' },
 ] as const satisfies readonly ModeToggleOption<TeamsView>[];
 
-/** Wild card berths available to each league. */
-const WILD_CARD_SPOTS = 3;
+/** Offered on the wild card view only: which record decides leaders, seeding and the cut line. */
+const standingsBasisOptions = [
+  { value: 'actual', label: 'Actual' },
+  { value: 'expected', label: 'Expected' },
+] as const satisfies readonly ModeToggleOption<StandingsBasis>[];
 
 /**
  * The backend only carries expected standings for the season in progress, so the
@@ -46,10 +50,19 @@ const TEAM_LIST_MIN = 'q';
 const LEAGUES: readonly MlbLeague[] = ['AL', 'NL'];
 
 interface JoinedTeamRow {
+  /** Row identity, and the key both games-back lookups are cut by. */
+  id: string;
   season: SeasonTeamLine;
   standing: TeamStandingLine | undefined;
   team: MlbTeam | undefined;
   name: string;
+  /** Games behind the division leader on actual record; filled in by `buildGroups`. */
+  gamesBack?: string;
+  /** Games behind the last wild card berth on actual record; filled in by `buildGroups`. */
+  wildCardGamesBack?: string;
+  /** The same two measures resolved on expected record instead. */
+  expectedGamesBack?: string;
+  expectedWildCardGamesBack?: string;
 }
 
 interface TeamsResult {
@@ -86,18 +99,34 @@ const teamFields: TeamField[] = [
   teamField('wins', 'W', 'Record', (row) => row.standing?.wins),
   teamField('losses', 'L', 'Record', (row) => row.standing?.losses),
   teamField('winPct', 'PCT', 'Record', (row) => row.standing?.winPct),
+  teamField('gamesBack', 'GB', 'Record', (row) => row.gamesBack),
+  teamField('wildCardGamesBack', 'WCGB', 'Record', (row) => row.wildCardGamesBack),
   teamField('expectedWins', 'xW', 'Expected', (row) => row.standing?.expectedWins, true),
   teamField('expectedLosses', 'xL', 'Expected', (row) => row.standing?.expectedLosses),
   teamField('expectedWinPct', 'xPCT', 'Expected', (row) => row.standing?.expectedWinPct),
+  teamField('expectedGamesBack', 'xGB', 'Expected', (row) => row.expectedGamesBack),
+  teamField('expectedWildCardGamesBack', 'xWCGB', 'Expected', (row) => row.expectedWildCardGamesBack),
   teamField('luck', 'Luck', 'Expected', (row) => row.standing?.luck),
 ];
 
-function getColumns(): BackendStatsTableColumn[] {
-  return teamFields.map(({ key, label, group, sectionStart }) => ({ key, label, group, sectionStart }));
+/** Wild-card-only columns: everything measured against a wild card berth, plus both expected-basis measures. */
+const WILD_CARD_ONLY_COLUMNS = ['wildCardGamesBack', 'expectedGamesBack', 'expectedWildCardGamesBack'];
+
+/**
+ * GB needs a division leader to measure against, so it is dropped from the
+ * mixed-league overall list. The rest only mean anything on the wild card page,
+ * which is the only view that offers the actual/expected basis.
+ */
+function isColumnVisible(key: string, view: TeamsView): boolean {
+  if (key === 'gamesBack') return view !== 'overall';
+  if (WILD_CARD_ONLY_COLUMNS.includes(key)) return view === 'wildcard';
+  return true;
 }
 
-function getRowId(row: JoinedTeamRow): string {
-  return row.season.teamAbbreviation ?? row.season.team;
+function getColumns(view: TeamsView): BackendStatsTableColumn[] {
+  return teamFields
+    .filter((field) => isColumnVisible(field.key, view))
+    .map(({ key, label, group, sectionStart }) => ({ key, label, group, sectionStart }));
 }
 
 function getRows(rows: JoinedTeamRow[]): BackendStatsTableRow[] {
@@ -108,7 +137,7 @@ function getRows(rows: JoinedTeamRow[]): BackendStatsTableRow[] {
       cells[field.key] = field.getValue(row);
     });
 
-    return { id: getRowId(row), cells };
+    return { id: row.id, cells };
   });
 }
 
@@ -116,45 +145,10 @@ function joinRows(teams: SeasonTeamLine[], standings: TeamStandingLine[]): Joine
   return teams.map((season) => {
     const team = season.teamAbbreviation ? getTeamByAbbreviation(season.teamAbbreviation) : undefined;
     const standing = team ? standings.find((s) => s.teamId === team.id) : undefined;
+    const id = season.teamAbbreviation ?? season.team;
 
-    return { season, standing, team, name: team?.name ?? season.team };
+    return { id, season, standing, team, name: team?.name ?? season.team };
   });
-}
-
-/** Seasons the backend has not ingested have no record, so those teams sort last. */
-function getWinPct(row: JoinedTeamRow): number {
-  return row.standing?.winPct ?? -1;
-}
-
-function byRecordDescending(rows: JoinedTeamRow[]): JoinedTeamRow[] {
-  return [...rows].sort((a, b) => getWinPct(b) - getWinPct(a));
-}
-
-/**
- * Builds the wild card standings for one league: division leaders are removed,
- * and everyone else is ranked by actual record with a cut line after the last
- * berth. Leaders are decided on real record, independent of the display sort.
- */
-function buildWildCardGroup(league: MlbLeague, joined: JoinedTeamRow[]): TeamsTableGroup {
-  const leagueRows = joined.filter((row) => row.team?.league === league);
-  const leaderIds = new Set(
-    MLB_DIVISIONS
-      .filter((division) => division.league === league)
-      .map((division) => byRecordDescending(
-        leagueRows.filter((row) => row.team?.division === division.division),
-      )[0])
-      .filter((row) => row !== undefined)
-      .map((row) => getRowId(row)),
-  );
-  const contenders = byRecordDescending(leagueRows.filter((row) => !leaderIds.has(getRowId(row))));
-  const firstTeamOut = contenders[WILD_CARD_SPOTS];
-
-  return {
-    title: `${league} Wild Card`,
-    rows: getRows(contenders),
-    sectionStartRowIds: firstTeamOut ? [getRowId(firstTeamOut)] : undefined,
-    sortable: false,
-  };
 }
 
 function buildGroups(
@@ -162,9 +156,35 @@ function buildGroups(
   joined: JoinedTeamRow[],
   sortKey: string,
   sortDirection: 'asc' | 'desc',
+  basis: StandingsBasis,
 ): TeamsTableGroup[] {
+  // Games back is a property of a team's league, not of the group it is shown in,
+  // and both bases are always displayed — so each league is resolved twice and
+  // the four measures are looked up by row id. Thirty rows; not worth caching.
+  const leagues = LEAGUES.map((league) => ({
+    league,
+    actual: buildLeagueStandings(league, joined, 'actual'),
+    expected: buildLeagueStandings(league, joined, 'expected'),
+  }));
+  const measure = (
+    pick: (entry: typeof leagues[number]) => Map<string, string>,
+  ) => new Map(leagues.flatMap((entry) => [...pick(entry)]));
+
+  const gamesBack = measure((entry) => entry.actual.gamesBack);
+  const wildCardGamesBack = measure((entry) => entry.actual.wildCardGamesBack);
+  const expectedGamesBack = measure((entry) => entry.expected.gamesBack);
+  const expectedWildCardGamesBack = measure((entry) => entry.expected.wildCardGamesBack);
+
+  const withGamesBack = (row: JoinedTeamRow): JoinedTeamRow => ({
+    ...row,
+    gamesBack: gamesBack.get(row.id),
+    wildCardGamesBack: wildCardGamesBack.get(row.id),
+    expectedGamesBack: expectedGamesBack.get(row.id),
+    expectedWildCardGamesBack: expectedWildCardGamesBack.get(row.id),
+  });
+
   const sorted = (rows: JoinedTeamRow[]) => {
-    const built = getRows(rows);
+    const built = getRows(rows.map(withGamesBack));
     return sortKey ? sortBackendStatsRows(built, sortKey, sortDirection) : built;
   };
 
@@ -178,8 +198,23 @@ function buildGroups(
     }));
   }
 
+  // Three stacked sections on the chosen basis: the division leaders who are
+  // already in, then the teams holding a wild card berth, then everyone chasing.
+  // Ranking is fixed, not the display sort.
   if (view === 'wildcard') {
-    return LEAGUES.map((league) => buildWildCardGroup(league, joined));
+    return leagues.map((entry) => {
+      const { leaders, contenders } = basis === 'expected' ? entry.expected : entry.actual;
+      const dividers = [contenders[0], contenders[WILD_CARD_SPOTS]]
+        .filter((row) => row !== undefined)
+        .map((row) => row.id);
+
+      return {
+        title: `${entry.league} Wild Card`,
+        rows: getRows([...leaders, ...contenders].map(withGamesBack)),
+        sectionStartRowIds: dividers.length ? dividers : undefined,
+        sortable: false,
+      };
+    });
   }
 
   return [{ title: 'Season Standings', rows: sorted(joined), sortable: true }];
@@ -194,6 +229,7 @@ function buildGroups(
  */
 export function Teams() {
   const [view, setView] = useState<TeamsView>('division');
+  const [basis, setBasis] = useState<StandingsBasis>('actual');
   const [result, setResult] = useState<TeamsResult | null>(null);
   const [sortKey, setSortKey] = useState('expectedWinPct');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -238,15 +274,15 @@ export function Teams() {
     }
   };
 
-  const columns = useMemo(() => getColumns(), []);
+  const columns = useMemo(() => getColumns(view), [view]);
 
   const groups = useMemo(() => {
     if (loading || error || !result) {
       return [];
     }
 
-    return buildGroups(view, joinRows(result.teams, result.standings), sortKey, sortDirection);
-  }, [loading, error, result, view, sortKey, sortDirection]);
+    return buildGroups(view, joinRows(result.teams, result.standings), sortKey, sortDirection, basis);
+  }, [loading, error, result, view, sortKey, sortDirection, basis]);
 
   return (
     <main className={`teams-page teams-page--${view}`}>
@@ -258,6 +294,14 @@ export function Teams() {
 
       <SeasonControls year={SEASON} />
       <ModeToggle ariaLabel="Standings view" onChange={setView} options={teamViewOptions} value={view} />
+      {view === 'wildcard' && (
+        <ModeToggle
+          ariaLabel="Wild card basis"
+          onChange={setBasis}
+          options={standingsBasisOptions}
+          value={basis}
+        />
+      )}
       {error ? (
         <p className="teams-error" role="alert">{error}</p>
       ) : loading ? (

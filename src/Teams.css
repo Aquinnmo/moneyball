@@ -34,16 +34,26 @@
   gap: 26px;
 }
 
-/* Nine columns, not the ~23 the shared stat-table width assumes: narrow enough
+/* Ten columns, not the ~23 the shared stat-table width assumes: narrow enough
    that a division table needs no horizontal scroll at all on a wide screen.
    Both classes are on the table, so this beats the base rule whatever order the
    stylesheets load in. */
 .backend-stats-table.teams-standings-table {
-  min-width: 700px;
+  min-width: 780px;
 }
 
 .teams-page--division {
   width: min(100%, 1500px);
+}
+
+/* Thirteen columns here — the wild card view shows both games-back pairs at
+   once — so it gets a wider table and a wider page to hold it. */
+.teams-page--wildcard {
+  width: min(100%, 1200px);
+}
+
+.teams-page--wildcard .backend-stats-table.teams-standings-table {
+  min-width: 1000px;
 }
 
 .teams-page--division .teams-groups {
