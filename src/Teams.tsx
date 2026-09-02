@@ -23,16 +23,25 @@ import {
 } from './components';
 import './Teams.css';
 
-type TeamsView = 'overall' | 'division' | 'wildcard';
+type TeamsView = 'division' | 'wildcard' | 'overall';
 
 const teamViewOptions = [
-  { value: 'overall', label: 'Overall' },
   { value: 'division', label: 'Division' },
   { value: 'wildcard', label: 'Wild Card' },
+  { value: 'overall', label: 'Overall' },
 ] as const satisfies readonly ModeToggleOption<TeamsView>[];
 
 /** Wild card berths available to each league. */
 const WILD_CARD_SPOTS = 3;
+
+/**
+ * The backend only carries expected standings for the season in progress, so the
+ * season picker is shown locked rather than offering years that render empty.
+ */
+const SEASON = new Date().getFullYear();
+
+/** The teams endpoint returns all 30 clubs regardless of `min`; nothing here uses it. */
+const TEAM_LIST_MIN = 'q';
 
 const LEAGUES: readonly MlbLeague[] = ['AL', 'NL'];
 
@@ -72,7 +81,7 @@ const teamField = (
 ): TeamField => ({ key, label, group, getValue, sectionStart });
 
 const teamFields: TeamField[] = [
-  teamField('name', 'Team', 'Team', (row) => row.name, true),
+  teamField('name', 'Name', 'Team', (row) => row.name, true),
   teamField('gamesPlayed', 'G', 'Record', (row) => row.standing?.gamesPlayed, true),
   teamField('wins', 'W', 'Record', (row) => row.standing?.wins),
   teamField('losses', 'L', 'Record', (row) => row.standing?.losses),
@@ -81,20 +90,6 @@ const teamFields: TeamField[] = [
   teamField('expectedLosses', 'xL', 'Expected', (row) => row.standing?.expectedLosses),
   teamField('expectedWinPct', 'xPCT', 'Expected', (row) => row.standing?.expectedWinPct),
   teamField('luck', 'Luck', 'Expected', (row) => row.standing?.luck),
-  teamField('pa', 'PA', 'Offense', (row) => row.season.pa, true),
-  teamField('ba', 'BA', 'Offense', (row) => row.season.ba),
-  teamField('estBa', 'xBA', 'Offense', (row) => row.season.estBa),
-  teamField('slg', 'SLG', 'Offense', (row) => row.season.slg),
-  teamField('estSlg', 'xSLG', 'Offense', (row) => row.season.estSlg),
-  teamField('woba', 'wOBA', 'Offense', (row) => row.season.woba),
-  teamField('estWoba', 'xwOBA', 'Offense', (row) => row.season.estWoba),
-  teamField('paAllowed', 'PA', 'Defense', (row) => row.season.paAllowed, true),
-  teamField('baAllowed', 'BA', 'Defense', (row) => row.season.baAllowed),
-  teamField('estBaAllowed', 'xBA', 'Defense', (row) => row.season.estBaAllowed),
-  teamField('slgAllowed', 'SLG', 'Defense', (row) => row.season.slgAllowed),
-  teamField('estSlgAllowed', 'xSLG', 'Defense', (row) => row.season.estSlgAllowed),
-  teamField('wobaAllowed', 'wOBA', 'Defense', (row) => row.season.wobaAllowed),
-  teamField('estWobaAllowed', 'xwOBA', 'Defense', (row) => row.season.estWobaAllowed),
 ];
 
 function getColumns(): BackendStatsTableColumn[] {
@@ -198,22 +193,20 @@ function buildGroups(
  * standings. Client-side sort and grouping only.
  */
 export function Teams() {
-  const [year, setYear] = useState(() => new Date().getFullYear());
-  const [min, setMin] = useState('q');
   const [view, setView] = useState<TeamsView>('division');
   const [result, setResult] = useState<TeamsResult | null>(null);
   const [sortKey, setSortKey] = useState('expectedWinPct');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  const requestKey = `${year}:${min}`;
+  const requestKey = `${SEASON}`;
   const loading = result?.key !== requestKey;
   const error = loading ? null : result?.error ?? null;
 
   useEffect(() => {
     let cancelled = false;
-    const key = `${year}:${min}`;
+    const key = `${SEASON}`;
 
-    Promise.all([getSeasonTeams(year, min), getExpectedStandings(year)])
+    Promise.all([getSeasonTeams(SEASON, TEAM_LIST_MIN), getExpectedStandings(SEASON)])
       .then(([teams, expectedStandings]) => {
         if (!cancelled) {
           setResult({ key, teams, standings: expectedStandings.teams, error: null });
@@ -234,7 +227,7 @@ export function Teams() {
     return () => {
       cancelled = true;
     };
-  }, [year, min]);
+  }, []);
 
   const handleSortChange = (key: string) => {
     if (key === sortKey) {
@@ -262,7 +255,7 @@ export function Teams() {
         <NavBar />
       </div>
       <ModeToggle ariaLabel="Standings view" onChange={setView} options={teamViewOptions} value={view} />
-      <SeasonControls min={min} onMinChange={setMin} onYearChange={setYear} year={year} />
+      <SeasonControls year={SEASON} />
       {error ? (
         <p className="teams-error" role="alert">{error}</p>
       ) : loading ? (
@@ -279,6 +272,7 @@ export function Teams() {
               sectionStartRowIds={group.sectionStartRowIds}
               sortDirection={group.sortable ? sortDirection : undefined}
               sortKey={group.sortable ? sortKey : undefined}
+              tableClassName="teams-standings-table"
               title={group.title}
             />
           ))}

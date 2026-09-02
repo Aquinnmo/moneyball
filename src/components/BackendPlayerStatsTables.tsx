@@ -59,7 +59,7 @@ const pitcherField = (
 ): PlayerField<Pitcher> => ({ key, label, group, getValue, sectionStart });
 
 const batterFields: PlayerField<Batter>[] = [
-  batterField('player', 'Player', 'Player', (batter) => playerName(batter)),
+  batterField('player', 'Name', 'Player', (batter) => playerName(batter)),
   batterField('primaryNumber', '#', 'Info', (batter) => batter.primaryNumber),
   batterField('position', 'Pos', 'Info', (batter) => formatPosition(batter.position)),
   batterField('batHand', 'Bat Hand', 'Info', (batter) => batter.batHand),
@@ -143,7 +143,7 @@ const batterFields: PlayerField<Batter>[] = [
 ];
 
 const pitcherFields: PlayerField<Pitcher>[] = [
-  pitcherField('player', 'Player', 'Player', (pitcher) => playerName(pitcher)),
+  pitcherField('player', 'Name', 'Player', (pitcher) => playerName(pitcher)),
   pitcherField('primaryNumber', '#', 'Info', (pitcher) => pitcher.primaryNumber),
   pitcherField('pitchHand', 'Pitch Hand', 'Info', (pitcher) => pitcher.pitchHand),
   pitcherField('hitsAgainst', 'H Against', 'Game', (pitcher) => pitcher.hitsAgainst, true),

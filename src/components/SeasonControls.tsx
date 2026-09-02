@@ -10,12 +10,12 @@ const MIN_OPTIONS: { value: string; label: string }[] = [
 export interface SeasonControlsProps {
   /** Currently selected season year. */
   year: number;
-  /** Called with the newly selected season year. */
-  onYearChange: (year: number) => void;
+  /** Called with the newly selected season year. Omit to show the picker read-only. */
+  onYearChange?: (year: number) => void;
   /** Currently selected minimum-qualifier value, passed straight through to the backend's `min` param. */
-  min: string;
-  /** Called with the newly selected minimum-qualifier value. */
-  onMinChange: (min: string) => void;
+  min?: string;
+  /** Called with the newly selected minimum-qualifier value. Omit, with `min`, to hide the field. */
+  onMinChange?: (min: string) => void;
 }
 
 /**
@@ -24,9 +24,9 @@ export interface SeasonControlsProps {
  * Shared season/qualifier control strip used by the Players and Teams leaderboard pages.
  *
  * @param props.year - Currently selected season year.
- * @param props.onYearChange - Called with the newly selected season year.
+ * @param props.onYearChange - Called with the newly selected season year; omit for a read-only picker.
  * @param props.min - Currently selected minimum-qualifier value.
- * @param props.onMinChange - Called with the newly selected minimum-qualifier value.
+ * @param props.onMinChange - Called with the newly selected minimum-qualifier value; omit, with `min`, to hide the field.
  */
 export function SeasonControls({ year, onYearChange, min, onMinChange }: SeasonControlsProps) {
   const currentYear = new Date().getFullYear();
@@ -41,7 +41,8 @@ export function SeasonControls({ year, onYearChange, min, onMinChange }: SeasonC
         <span>Season</span>
         <select
           className="season-controls__select"
-          onChange={(e) => onYearChange(Number(e.target.value))}
+          disabled={!onYearChange}
+          onChange={(e) => onYearChange?.(Number(e.target.value))}
           value={year}
         >
           {years.map((y) => (
@@ -49,18 +50,20 @@ export function SeasonControls({ year, onYearChange, min, onMinChange }: SeasonC
           ))}
         </select>
       </label>
-      <label className="season-controls__field">
-        <span>Minimum</span>
-        <select
-          className="season-controls__select"
-          onChange={(e) => onMinChange(e.target.value)}
-          value={min}
-        >
-          {MIN_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </select>
-      </label>
+      {min !== undefined && onMinChange ? (
+        <label className="season-controls__field">
+          <span>Minimum</span>
+          <select
+            className="season-controls__select"
+            onChange={(e) => onMinChange(e.target.value)}
+            value={min}
+          >
+            {MIN_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </label>
+      ) : null}
     </div>
   );
 }

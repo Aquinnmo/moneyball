@@ -53,7 +53,7 @@ const pitcherField = (
 ): SeasonField<SeasonPitcherLine> => ({ key, label, group, getValue, sectionStart });
 
 const batterFields: SeasonField<SeasonBatterLine>[] = [
-  batterField('name', 'Player', 'Player', (row) => formatSavantName(row.name), true),
+  batterField('name', 'Name', 'Player', (row) => formatSavantName(row.name), true),
   batterField('pa', 'PA', 'Playing Time', (row) => row.pa, true),
   batterField('bip', 'BIP', 'Playing Time', (row) => row.bip),
   batterField('ba', 'BA', 'Average', (row) => row.ba, true),
@@ -68,7 +68,7 @@ const batterFields: SeasonField<SeasonBatterLine>[] = [
 ];
 
 const pitcherFields: SeasonField<SeasonPitcherLine>[] = [
-  pitcherField('name', 'Player', 'Player', (row) => formatSavantName(row.name), true),
+  pitcherField('name', 'Name', 'Player', (row) => formatSavantName(row.name), true),
   pitcherField('pa', 'PA', 'Playing Time', (row) => row.pa, true),
   pitcherField('bip', 'BIP', 'Playing Time', (row) => row.bip),
   pitcherField('ba', 'BA', 'Average', (row) => row.ba, true),

@@ -34,3 +34,11 @@
   border-color: var(--hologram-cyan);
   box-shadow: 0 0 10px var(--hologram-cyan-glow), inset 0 0 10px var(--hologram-cyan-glow);
 }
+
+/* Locked, not broken: still legible, just visibly not a control. */
+.season-controls__select:disabled {
+  border-style: dashed;
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.75;
+}
