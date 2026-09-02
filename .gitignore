@@ -24,8 +24,10 @@ dist-ssr
 *.sw?
 
 # Beads / Dolt files (added by bd init)
-.beads/
 .dolt/
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+.env
+.env.local

@@ -108,8 +108,36 @@
   }
 }
 
+/* Fixed layout keeps every column the same width across sibling tables, so the
+   six division standings read as one grid instead of six differently-sized ones.
+   The width fits the widest user of this base rule: the 15-column season
+   pitchers table, whose "wOBA − xwOBA" headers need ~100px each. Tables with
+   far fewer columns set their own (see .teams-standings-table). */
 .backend-stats-table {
-  min-width: 720px;
+  min-width: 1620px;
+  table-layout: fixed;
+}
+
+.backend-stats-table th,
+.backend-stats-table td {
+  font-size: 13px;
+  overflow: hidden;
+  padding: 6px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backend-stats-table thead th {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+/* Fits the longest name on one line — "Simeon Woods Richardson" (179px) is the
+   worst case across teams and players. */
+.backend-stats-table th:first-child,
+.backend-stats-table td:first-child {
+  border-right: 1px solid var(--hologram-cyan-glow);
+  width: 200px;
 }
 
 .backend-stats-table-wrap {
@@ -122,26 +150,42 @@
 }
 
 .backend-stats-table tbody th:first-child {
-  font-size: 12px;
+  color: rgba(0, 242, 255, 0.9);
+  font-size: 13px;
   font-weight: 500;
-  opacity: 0.88;
   text-transform: none;
 }
 
 .backend-stats-table-groups th {
-  background: rgba(0, 242, 255, 0.04);
+  /* Tint layered over an opaque base: this row is sticky, so it cannot be see-through. */
+  background: linear-gradient(rgba(0, 242, 255, 0.04) 0 100%), var(--hologram-surface);
+  color: rgba(0, 242, 255, 0.62);
   font-size: 10px;
-  opacity: 0.7;
+  height: 26px;
+  padding-bottom: 0;
+  padding-top: 0;
 }
 
-.backend-stats-table-scroll .backend-stats-table thead tr:last-child th {
-  background: var(--hologram-bg);
+/* Both header rows pin while scrolling: without the group row the two PA/BA/SLG
+   blocks are indistinguishable once Offense/Defense scrolls away.
+   ponytail: the label row's offset is hard-coded to the group row's fixed 26px
+   height above; if that height changes, change this to match. */
+.backend-stats-table-scroll .backend-stats-table thead tr:first-child th {
   position: sticky;
   top: 0;
   z-index: 3;
 }
 
-.backend-stats-table-scroll .backend-stats-table thead tr:last-child th:first-child {
+.backend-stats-table-scroll .backend-stats-table thead tr:last-child th {
+  background: var(--hologram-surface);
+  position: sticky;
+  top: 26px;
+  z-index: 3;
+}
+
+/* Must out-specify the `thead tr:last-child th` rule above, or the scrolled-past
+   header cells (same z-index, later in the DOM) paint over the frozen column. */
+.backend-stats-table-scroll .backend-stats-table thead tr th:first-child {
   z-index: 4;
 }
 
@@ -153,9 +197,82 @@
   min-width: 5600px;
 }
 
+.backend-stats-table-sort-button {
+  align-items: center;
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 4px;
+  justify-content: center;
+  letter-spacing: inherit;
+  padding: 2px 4px;
+  margin: -2px -4px;          /* larger hit target without shifting layout */
+  text-decoration: none;
+  text-transform: inherit;
+  width: 100%;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+/* Team/player name column is left-aligned; keep its label there. */
+.backend-stats-table thead th:first-child .backend-stats-table-sort-button {
+  justify-content: flex-start;
+}
+
+/* Direction arrow: always in the box so sorting never shifts the header, */
+/* invisible until the column is hovered or active. */
+.backend-stats-table-sort-button::after {
+  content: '▾';
+  font-size: 9px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Reset background/box-shadow too: the global `button:hover` rule would otherwise
+   draw a glowing box around every column label. */
+.backend-stats-table-sort-button:hover,
+.backend-stats-table-sort-button:focus-visible {
+  background: none;
+  box-shadow: none;
+  color: var(--hologram-cyan);
+  text-shadow: 0 0 6px var(--hologram-cyan-glow);
+}
+
+.backend-stats-table-sort-button:hover::after,
+.backend-stats-table-sort-button:focus-visible::after {
+  opacity: 0.45;
+}
+
+/* Active sorted column. */
+.backend-stats-table thead th[aria-sort='ascending'],
+.backend-stats-table thead th[aria-sort='descending'] {
+  box-shadow: inset 0 -2px 0 var(--hologram-cyan);
+  color: var(--hologram-cyan);   /* other headers are dimmed cyan */
+  text-shadow: 0 0 8px var(--hologram-cyan-glow);
+}
+
+.backend-stats-table thead th[aria-sort='ascending'] .backend-stats-table-sort-button::after,
+.backend-stats-table thead th[aria-sort='descending'] .backend-stats-table-sort-button::after {
+  opacity: 1;
+}
+
+.backend-stats-table thead th[aria-sort='ascending'] .backend-stats-table-sort-button::after {
+  content: '▴';
+}
+
 .backend-player-stats-table th,
 .backend-player-stats-table td {
   white-space: nowrap;
+}
+
+/* ~90 columns with long labels ("Avg Bat Speed"): let them size to their content
+   rather than share a fixed width. Uniform columns only matter for the division
+   standings, which sit side by side and have to line up. */
+.backend-player-stats-table {
+  table-layout: auto;
 }
 
 .backend-player-stats-table th:first-child,

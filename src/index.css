@@ -3,6 +3,9 @@
   --hologram-cyan: #00f2ff;
   --hologram-cyan-glow: rgba(0, 242, 255, 0.4);
   --hologram-bg: rgba(0, 20, 30, 0.85);
+  /* Opaque twin of --hologram-bg (that colour composited over the page). Sticky
+     table cells need it: a translucent background lets scrolled rows show through. */
+  --hologram-surface: #061923;
   --hologram-panel-bg: rgba(0, 40, 60, 0.3);
   --hologram-grid: rgba(0, 242, 255, 0.1);
   --hologram-error: #ff3b3b;

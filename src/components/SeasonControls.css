@@ -1,0 +1,44 @@
+.season-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 28px;
+}
+
+.season-controls__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  color: var(--hologram-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+}
+
+.season-controls__select {
+  font-family: var(--mono);
+  background: var(--hologram-panel-bg);
+  color: var(--hologram-cyan);
+  border: 1px solid var(--hologram-cyan-glow);
+  padding: 8px 12px;
+  min-height: 38px;
+  box-shadow: inset 0 0 5px rgba(0, 242, 255, 0.2);
+  outline: none;
+  cursor: pointer;
+}
+
+.season-controls__select:focus {
+  border-color: var(--hologram-cyan);
+  box-shadow: 0 0 10px var(--hologram-cyan-glow), inset 0 0 10px var(--hologram-cyan-glow);
+}
+
+/* Locked, not broken: still legible, just visibly not a control. */
+.season-controls__select:disabled {
+  border-style: dashed;
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.75;
+}

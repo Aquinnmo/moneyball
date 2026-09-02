@@ -19,4 +19,10 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/components/BackendStatsTable.tsx'],
+    rules: {
+      'react-refresh/only-export-components': ['warn', { allowExportNames: ['sortBackendStatsRows'] }],
+    },
+  },
 ])

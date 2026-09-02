@@ -746,3 +746,97 @@ export type Batter = z.infer<typeof BatterSchema>;
 export type GameTeam = z.infer<typeof ExtendedGameTeamSchema>;
 export type GameSummary = z.infer<typeof GameSummarySchema>;
 export type LeaderEntry = z.infer<typeof LeaderEntrySchema>;
+
+export const SeasonBatterLineSchema = z.object({
+    playerId: z.number().int(),
+    name: z.string(),
+    year: z.number().int(),
+    pa: z.number().int(),
+    bip: z.number().int(),
+    ba: z.number(),
+    estBa: z.number(),
+    baMinusEstBaDiff: z.number(),
+    slg: z.number(),
+    estSlg: z.number(),
+    slgMinusEstSlgDiff: z.number(),
+    woba: z.number(),
+    estWoba: z.number(),
+    wobaMinusEstWobaDiff: z.number(),
+});
+
+export const SeasonPitcherLineSchema = SeasonBatterLineSchema.extend({
+    era: z.number(),
+    xEra: z.number(),
+    eraMinusXEraDiff: z.number(),
+});
+
+export const SeasonTeamLineSchema = z.object({
+    team: z.string(),
+    teamAbbreviation: maybe(z.string()),
+    year: z.number().int(),
+    pa: z.number().int(),
+    bip: z.number().int(),
+    ba: z.number(),
+    estBa: z.number(),
+    baMinusEstBaDiff: z.number(),
+    slg: z.number(),
+    estSlg: z.number(),
+    slgMinusEstSlgDiff: z.number(),
+    woba: z.number(),
+    estWoba: z.number(),
+    wobaMinusEstWobaDiff: z.number(),
+    paAllowed: z.number().int(),
+    bipAllowed: z.number().int(),
+    baAllowed: z.number(),
+    estBaAllowed: z.number(),
+    baAllowedMinusEstBaAllowedDiff: z.number(),
+    slgAllowed: z.number(),
+    estSlgAllowed: z.number(),
+    slgAllowedMinusEstSlgAllowedDiff: z.number(),
+    wobaAllowed: z.number(),
+    estWobaAllowed: z.number(),
+    wobaAllowedMinusEstWobaAllowedDiff: z.number(),
+});
+
+export const TeamStandingLineSchema = z.object({
+    teamId: z.number().int(),
+    gamesPlayed: z.number().int(),
+    wins: z.number().int(),
+    losses: z.number().int(),
+    winPct: z.number(),
+    expectedWins: z.number().int(),
+    expectedLosses: z.number().int(),
+    expectedWinPct: z.number(),
+    luck: z.number().int(),
+});
+
+export const ExpectedStandingsSchema = z.object({
+    season: z.number().int(),
+    teams: z.array(TeamStandingLineSchema),
+});
+
+const SeasonBatterLineArraySchema = z.array(SeasonBatterLineSchema);
+const SeasonPitcherLineArraySchema = z.array(SeasonPitcherLineSchema);
+const SeasonTeamLineArraySchema = z.array(SeasonTeamLineSchema);
+
+export function processSeasonBatters(data: unknown): SeasonBatterLine[] {
+    return SeasonBatterLineArraySchema.parse(data);
+}
+
+export function processSeasonPitchers(data: unknown): SeasonPitcherLine[] {
+    return SeasonPitcherLineArraySchema.parse(data);
+}
+
+export function processSeasonTeams(data: unknown): SeasonTeamLine[] {
+    return SeasonTeamLineArraySchema.parse(data);
+}
+
+export function processExpectedStandings(data: unknown): ExpectedStandings {
+    return ExpectedStandingsSchema.parse(data);
+}
+
+export type SeasonBatterLine = z.infer<typeof SeasonBatterLineSchema>;
+export type SeasonPitcherLine = z.infer<typeof SeasonPitcherLineSchema>;
+export type SeasonTeamLine = z.infer<typeof SeasonTeamLineSchema>;
+export type TeamStandingLine = z.infer<typeof TeamStandingLineSchema>;
+export type ExpectedStandings = z.infer<typeof ExpectedStandingsSchema>;

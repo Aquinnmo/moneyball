@@ -12,8 +12,8 @@ interface MainNavigationLink {
 
 const mainNavigationLinks = [
   { label: 'Games', to: '/games-picker/', isEnabled: true },
-  { label: 'Teams', to: '/teams/', isEnabled: false },
-  { label: 'Players', to: '/players/', isEnabled: false },
+  { label: 'Teams', to: '/teams/', isEnabled: true },
+  { label: 'Players', to: '/players/', isEnabled: true },
 ] as const satisfies readonly MainNavigationLink[];
 
 /**

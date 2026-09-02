@@ -1,4 +1,17 @@
-import { processSchedule, processGameData, type Schedule, type GameData } from '../types';
+import {
+    processSchedule,
+    processGameData,
+    processSeasonBatters,
+    processSeasonPitchers,
+    processSeasonTeams,
+    processExpectedStandings,
+    type Schedule,
+    type GameData,
+    type SeasonBatterLine,
+    type SeasonPitcherLine,
+    type SeasonTeamLine,
+    type ExpectedStandings,
+} from '../types';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -21,6 +34,7 @@ async function fetchWithRetry(url: string, options?: RequestInit, retries = 2): 
             }
             return response;
         } catch (err) {
+            if (err instanceof ApiError && err.status < 500) throw err;
             if (attempt === retries) {
                 throw err;
             }
@@ -42,4 +56,28 @@ export async function getGame(gamePk: string | number): Promise<GameData> {
     const response = await fetchWithRetry(`${BASE_URL}game=${gamePk}`);
     const data = await response.json();
     return processGameData(data);
+}
+
+export async function getSeasonBatters(year: number, min = 'q'): Promise<SeasonBatterLine[]> {
+    const response = await fetchWithRetry(`${BASE_URL}season/${year}/batters?min=${encodeURIComponent(min)}`);
+    const data = await response.json();
+    return processSeasonBatters(data);
+}
+
+export async function getSeasonPitchers(year: number, min = 'q'): Promise<SeasonPitcherLine[]> {
+    const response = await fetchWithRetry(`${BASE_URL}season/${year}/pitchers?min=${encodeURIComponent(min)}`);
+    const data = await response.json();
+    return processSeasonPitchers(data);
+}
+
+export async function getSeasonTeams(year: number, min = 'q'): Promise<SeasonTeamLine[]> {
+    const response = await fetchWithRetry(`${BASE_URL}season/${year}/teams?min=${encodeURIComponent(min)}`);
+    const data = await response.json();
+    return processSeasonTeams(data);
+}
+
+export async function getExpectedStandings(year: number): Promise<ExpectedStandings> {
+    const response = await fetchWithRetry(`${BASE_URL}expected-standings/${year}`);
+    const data = await response.json();
+    return processExpectedStandings(data);
 }

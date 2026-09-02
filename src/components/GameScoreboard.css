@@ -26,6 +26,8 @@
 
 .scoreboard-table-wrap {
   overflow-x: auto;
+  scrollbar-color: var(--hologram-cyan-glow) transparent;
+  scrollbar-width: thin;
 }
 
 .scoreboard-table {
@@ -46,18 +48,25 @@
 .scoreboard-table td:first-child {
   position: sticky;
   left: 0;
-  background: var(--hologram-bg);
+  background: var(--hologram-surface);
   text-align: left;
 }
 
+/* Dim via colour, not opacity: opacity fades the cell's own background too, so
+   rows scrolling under a sticky header or frozen column would show through. */
 .scoreboard-table thead th {
   border-bottom-style: dashed;
+  color: rgba(0, 242, 255, 0.82);
   font-size: 12px;
   font-weight: 500;
-  opacity: 0.8;
   text-transform: uppercase;
 }
 
 .start-board-section {
   border-left: 1px solid var(--hologram-cyan-glow);
+}
+.start-board-row > th,
+.start-board-row > td {
+  border-top: 2px solid var(--hologram-cyan);
+  box-shadow: 0 -4px 8px -4px var(--hologram-cyan);
 }

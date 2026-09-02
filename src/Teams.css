@@ -1,0 +1,61 @@
+.teams-page {
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  width: min(100%, 960px);
+  font-family: var(--mono);
+}
+
+.teams-page .main-navigation {
+  margin: 0 auto 28px;
+  padding: 0;
+}
+
+.teams-header {
+  display: grid;
+  gap: 12px;
+  margin: 0 auto 26px;
+}
+
+.teams-header h1 {
+  margin: 0;
+  color: var(--hologram-cyan);
+  text-shadow: 0 0 10px var(--hologram-cyan-glow);
+}
+
+.teams-error {
+  color: var(--hologram-error);
+  text-align: center;
+  padding: 20px;
+}
+
+.teams-groups {
+  display: grid;
+  gap: 26px;
+}
+
+/* Nine columns, not the ~23 the shared stat-table width assumes: narrow enough
+   that a division table needs no horizontal scroll at all on a wide screen.
+   Both classes are on the table, so this beats the base rule whatever order the
+   stylesheets load in. */
+.backend-stats-table.teams-standings-table {
+  min-width: 700px;
+}
+
+.teams-page--division {
+  width: min(100%, 1500px);
+}
+
+.teams-page--division .teams-groups {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.teams-groups .backend-stats-section {
+  min-width: 0;
+}
+
+@media (max-width: 1080px) {
+  .teams-page--division .teams-groups {
+    grid-template-columns: 1fr;
+  }
+}
