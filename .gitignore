@@ -30,3 +30,4 @@ dist-ssr
 .beads/proxieddb/
 
 .env
+.env.local
