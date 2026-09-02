@@ -200,7 +200,7 @@ function buildGroups(
 export function Teams() {
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [min, setMin] = useState('q');
-  const [view, setView] = useState<TeamsView>('overall');
+  const [view, setView] = useState<TeamsView>('division');
   const [result, setResult] = useState<TeamsResult | null>(null);
   const [sortKey, setSortKey] = useState('expectedWinPct');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -256,7 +256,7 @@ export function Teams() {
   }, [loading, error, result, view, sortKey, sortDirection]);
 
   return (
-    <main className="teams-page">
+    <main className={`teams-page teams-page--${view}`}>
       <div className="teams-header">
         <h1>Teams</h1>
         <NavBar />
@@ -268,19 +268,21 @@ export function Teams() {
       ) : loading ? (
         <BaseballDiamondSpinner message="Loading season standings..." />
       ) : (
-        groups.map((group) => (
-          <BackendStatsTable
-            columns={columns}
-            key={group.title}
-            onSortChange={group.sortable ? handleSortChange : undefined}
-            rows={group.rows}
-            scrollable={view === 'overall'}
-            sectionStartRowIds={group.sectionStartRowIds}
-            sortDirection={group.sortable ? sortDirection : undefined}
-            sortKey={group.sortable ? sortKey : undefined}
-            title={group.title}
-          />
-        ))
+        <div className="teams-groups">
+          {groups.map((group) => (
+            <BackendStatsTable
+              columns={columns}
+              key={group.title}
+              onSortChange={group.sortable ? handleSortChange : undefined}
+              rows={group.rows}
+              scrollable={view === 'overall'}
+              sectionStartRowIds={group.sectionStartRowIds}
+              sortDirection={group.sortable ? sortDirection : undefined}
+              sortKey={group.sortable ? sortKey : undefined}
+              title={group.title}
+            />
+          ))}
+        </div>
       )}
       <StatGlossary />
     </main>

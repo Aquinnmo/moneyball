@@ -28,3 +28,26 @@
   text-align: center;
   padding: 20px;
 }
+
+.teams-groups {
+  display: grid;
+  gap: 26px;
+}
+
+.teams-page--division {
+  width: min(100%, 1500px);
+}
+
+.teams-page--division .teams-groups {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.teams-groups .backend-stats-section {
+  min-width: 0;
+}
+
+@media (max-width: 1080px) {
+  .teams-page--division .teams-groups {
+    grid-template-columns: 1fr;
+  }
+}
